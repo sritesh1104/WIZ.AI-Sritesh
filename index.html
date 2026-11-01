@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promise Tracker Concept</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#17212b;--muted:#5b6875;--line:#dde3e9;--accent:#0f6e6e;--accent-soft:#e2f1f0;--high:#b3261e;--high-soft:#fbe9e7;--med:#9a5b00;--med-soft:#fdf1dc;--low:#22703a;--low-soft:#e5f4e9;--grow:#2f4fa8;--grow-soft:#e8edfb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:26px;margin:0}h2{font-size:19px;margin:0 0 4px}h3{font-size:15px;margin:0 0 6px}
+p{margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:13.5px}
+.notice{background:var(--ink);color:#fff;padding:8px 16px;font-size:14px;text-align:center}
+.tag{color:var(--accent);font-weight:600;margin-top:2px}
+.tabs{display:flex;gap:6px;margin:16px 0;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:14px;align-items:start}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.kpi b{display:block;font-size:26px;line-height:1.2}.kpi span{font-size:13.5px;color:var(--muted)}
+label{font-size:14px}
+.field{display:grid;grid-template-columns:1fr 124px;gap:10px;align-items:center;margin-bottom:8px}
+input[type=number]{width:100%;padding:6px 8px;border:1px solid #b9c3cd;border-radius:6px;font:inherit;background:#fff;color:var(--ink)}
+table{border-collapse:collapse;width:100%}th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);font-size:14.5px}
+th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:600}
+.exp{background:var(--accent-soft);font-weight:600}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:7px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--accent)}
+.bar-row{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;margin-bottom:9px;font-size:14px}
+.track{position:relative;height:24px;background:#eef1f4;border-radius:5px}
+.span{position:absolute;top:0;bottom:0;background:#8cc4c1;border-radius:5px}
+.tick{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--ink)}
+.zero{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--high)}
+.ends{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.weights{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.weights label{display:block;font-weight:600;font-size:13.5px}.weights output{float:right;color:var(--accent);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filters button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 13px;font:inherit;font-size:14px;cursor:pointer;color:var(--ink)}
+.filters button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.acct{border:1px solid var(--line);border-radius:9px;background:#fff;margin-bottom:8px;overflow:hidden}
+.acct>button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,3.6fr) auto 44px;gap:12px;align-items:center;width:100%;padding:11px 14px;cursor:pointer}
+.acct>button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.acct .name{font-weight:600}.acct .why{font-size:13.5px;color:var(--muted)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12.5px;font-weight:700;margin-left:4px}
+.HIGH{background:var(--high-soft);color:var(--high)}.MEDIUM{background:var(--med-soft);color:var(--med)}.LOW{background:var(--low-soft);color:var(--low)}.GROW{background:var(--grow-soft);color:var(--grow)}
+.score{font-size:20px;font-weight:700;text-align:right}
+.detail{padding:4px 14px 14px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.sig{display:grid;grid-template-columns:112px 1fr 34px;gap:8px;align-items:center;font-size:13.5px;margin-bottom:6px}
+.meter{height:10px;background:#eef1f4;border-radius:5px;overflow:hidden}.meter i{display:block;height:100%;background:var(--accent)}
+ul{margin:0 0 10px;padding-left:19px}li{margin-bottom:4px}
+.callout{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:14.5px;margin-bottom:12px}
+.warn{background:var(--med-soft)}
+.hide{display:none}
+@media (max-width:860px){.grid2,.detail{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.weights{grid-template-columns:repeat(2,minmax(0,1fr))}.acct>button{grid-template-columns:minmax(0,1fr) auto 40px}.acct .why{grid-column:1/-1;grid-row:2}}
+</style>
+</head>
+<body>
+<div class="notice">Concept demo by Sritesh Naidu. All clients and figures are made up. Not a WIZ.AI product and not production work.</div>
+<div class="wrap">
+  <h1>Promise Tracker</h1>
+  <p class="tag">What we promise at the sale is what we track after it.</p>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="t-case" aria-selected="true" data-tab="case">1. Business Case</button>
+    <button role="tab" id="t-health" aria-selected="false" data-tab="health">2. Account Health</button>
+    <button role="tab" id="t-real" aria-selected="false" data-tab="real">3. Making It Real</button>
+  </div>
+
+  <section id="case">
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <h2>Client Inputs</h2>
+          <p class="muted small">Merantia Credit, a made-up lender, early collections. Every input can be changed live.</p>
+          <div class="field"><label for="A">Collections agents</label><input type="number" id="A" value="60" min="0"></div>
+          <div class="field"><label for="C">Cost per agent, RM a month</label><input type="number" id="C" value="4500" min="0"></div>
+          <div class="field"><label for="B">Overdue balance, RM a month</label><input type="number" id="B" value="30000000" min="0" step="1000000"></div>
+          <div class="field"><label for="F">Vendor fee, RM a month</label><input type="number" id="F" value="60000" min="1" step="5000"></div>
+          <div class="field"><label for="I">One-off implementation, RM</label><input type="number" id="I" value="150000" min="0" step="10000"></div>
+          <div class="field"><label for="T">Target benefit multiple</label><input type="number" id="T" value="5" min="1" step="0.5"></div>
+          <p class="muted small">Vendor pricing is a placeholder, because no pricing is public.</p>
+        </div>
+        <div class="card">
+          <h2>Assumptions</h2>
+          <table>
+            <thead><tr><th>Assumption</th><th>Low</th><th>Expected</th><th>High</th></tr></thead>
+            <tbody id="assump"></tbody>
+          </table>
+          <p class="muted small" style="margin-top:8px">Incremental share is the part of extra recoveries that a control group shows would not have come in anyway.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h2>Result, Per Month</h2>
+          <table id="results"></table>
+          <p class="muted small" style="margin-top:8px">Multiple means monthly benefit divided by the vendor fee. This is my own definition.</p>
+        </div>
+        <div class="card">
+          <h2>What Moves the Answer Most</h2>
+          <p class="muted small">Net benefit a month as each assumption moves from low to high, with the others held at expected. The black mark is the expected case, and the red line is break-even.</p>
+          <div id="tornado"></div>
+        </div>
+        <div class="card">
+          <h2>What Must Be True</h2>
+          <p id="must"></p>
+          <button class="btn" id="promiseBtn">Make the expected case Merantia's promise</button>
+          <p class="small muted" id="promiseMsg" style="margin:8px 0 0"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="health" class="hide">
+    <div class="kpis">
+      <div class="kpi"><b id="k-n"></b><span>Accounts monitored</span></div>
+      <div class="kpi"><b id="k-h" style="color:var(--high)"></b><span>High risk</span></div>
+      <div class="kpi"><b id="k-v" style="color:var(--med)"></b><span>Contract value in medium or high risk</span></div>
+      <div class="kpi"><b id="k-g" style="color:var(--grow)"></b><span>Expansion candidates</span></div>
+    </div>
+    <div class="card">
+      <h2>Signal Weights</h2>
+      <p class="muted small">A starting assumption, to be tested against accounts that really churned. Bands: high from 60, medium from 35. Rule based, with no AI model behind the score.</p>
+      <div class="weights" id="weights"></div>
+      <button class="btn ghost" id="resetW" style="margin-top:10px">Reset weights</button>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div id="accts"></div>
+  </section>
+
+  <section id="real" class="hide">
+    <div class="grid2">
+      <div class="card">
+        <h2>What I Would Need</h2>
+        <ul>
+          <li><b>Past Churn:</b> Which accounts left or shrank, and when.</li>
+          <li><b>Data Access:</b> Call volumes, outcome tags, QM scores, the ticket system and the QBR log, per account.</li>
+          <li><b>A Baseline:</b> What was promised to each client at the sale, in writing.</li>
+          <li><b>A Portfolio Figure:</b> The size of each client's own base, so a volume drop can be read fairly.</li>
+        </ul>
+        <h2>How I Would Test It</h2>
+        <ul>
+          <li><b>Backtest:</b> Score past quarters using only what was known then, and see how early it would have flagged the accounts that left.</li>
+          <li><b>Shadow Run:</b> Run it beside the customer success team for one quarter, and compare its flags with their judgement.</li>
+          <li><b>Then Decide:</b> Keep the weights, retune them, or drop the signals that add nothing.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>What This Does Not Prove</h2>
+        <ul>
+          <li><b>Accuracy:</b> No accuracy figure is shown, because on made-up data it would mean nothing.</li>
+          <li><b>Live Use:</b> It has not run on a real customer base.</li>
+          <li><b>Your Current Process:</b> You may already track this another way, and I do not know how.</li>
+          <li><b>Revenue Link:</b> I do not know how contracts are billed, so a volume drop may or may not reduce revenue.</li>
+        </ul>
+        <h2>What I Would Ask You</h2>
+        <ul>
+          <li>How do you spot an at-risk account today, and how early?</li>
+          <li>Where do most accounts stall or shrink?</li>
+          <li>Is the QM data available per client, for clients who do not buy QM?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var rm=function(n){var a=Math.abs(n);var s=a>=1e6?(a/1e6).toFixed(2)+"m":Math.round(a).toLocaleString("en-MY");return (n<0?"-":"")+"RM "+s};
+var clamp=function(x){return Math.max(0,Math.min(100,x))};
+
+/* Business case */
+var A={s:{label:"Calls AI takes over, %",v:[20,35,50],step:5},r:{label:"Saving actually realised, %",v:[40,60,80],step:5},u:{label:"Cure rate uplift, points",v:[0.2,0.5,1],step:0.1},i:{label:"Incremental share, %",v:[30,50,70],step:5}};
+var promise={u:0.5,s:35};
+function inputs(){return{A:+$("A").value||0,C:+$("C").value||0,B:+$("B").value||0,F:+$("F").value||1,I:+$("I").value||0,T:+$("T").value||1}}
+function benefit(p,s,r,u,i){return p.A*p.C*(s/100)*(r/100)+p.B*(u/100)*(i/100)}
+function buildAssump(){
+  $("assump").innerHTML=Object.keys(A).map(function(k){return "<tr><td>"+A[k].label+"</td>"+[0,1,2].map(function(j){
+    return '<td><input type="number" aria-label="'+A[k].label+" "+["low","expected","high"][j]+'" data-k="'+k+'" data-j="'+j+'" value="'+A[k].v[j]+'" step="'+A[k].step+'" min="0" style="width:68px"></td>'}).join("")+"</tr>"}).join("");
+}
+function renderCase(){
+  var p=inputs();
+  var cases=[0,1,2].map(function(j){
+    var save=p.A*p.C*(A.s.v[j]/100)*(A.r.v[j]/100),rec=p.B*(A.u.v[j]/100)*(A.i.v[j]/100),b=save+rec,net=b-p.F;
+    return{save:save,rec:rec,b:b,net:net,mult:b/p.F,pay:net>0?p.I/net:null}});
+  var row=function(l,f){return "<tr><td>"+l+"</td>"+cases.map(function(c,j){return '<td class="'+(j==1?"exp":"")+'">'+f(c)+"</td>"}).join("")+"</tr>"};
+  $("results").innerHTML="<thead><tr><th></th><th>Low</th><th>Expected</th><th>High</th></tr></thead><tbody>"+
+    row("Agent cost saved",function(c){return rm(c.save)})+row("Extra recoveries",function(c){return rm(c.rec)})+
+    row("Total benefit",function(c){return rm(c.b)})+row("Net of vendor fee",function(c){return rm(c.net)})+
+    row("Benefit multiple",function(c){return c.mult.toFixed(1)+"x"})+
+    row("Payback",function(c){return c.pay===null?"Does not pay back":c.pay.toFixed(1)+" months"})+"</tbody>";
+  var e={s:A.s.v[1],r:A.r.v[1],u:A.u.v[1],i:A.i.v[1]};
+  var rows=Object.keys(A).map(function(k){
+    var lo=Object.assign({},e),hi=Object.assign({},e);lo[k]=A[k].v[0];hi[k]=A[k].v[2];
+    var n=function(o){return benefit(p,o.s,o.r,o.u,o.i)-p.F};
+    return{k:k,lo:n(lo),hi:n(hi)}}).sort(function(a,b){return (b.hi-b.lo)-(a.hi-a.lo)});
+  var net=benefit(p,e.s,e.r,e.u,e.i)-p.F;
+  var min=Math.min.apply(null,rows.map(function(r){return r.lo}).concat([0,net])),max=Math.max.apply(null,rows.map(function(r){return r.hi}).concat([0,net]));
+  var pos=function(x){return max===min?0:(x-min)/(max-min)*100};
+  $("tornado").innerHTML=rows.map(function(r){
+    return '<div class="bar-row"><div>'+A[r.k].label.split(",")[0]+'</div><div><div class="track"><div class="span" style="left:'+pos(Math.min(r.lo,r.hi))+"%;width:"+Math.abs(pos(r.hi)-pos(r.lo))+'%"></div><div class="zero" style="left:'+pos(0)+'%"></div><div class="tick" style="left:'+pos(net)+'%"></div></div><div class="ends"><span>'+rm(r.lo)+"</span><span>"+rm(r.hi)+"</span></div></div></div>"}).join("");
+  var saved=p.A*p.C*(e.s/100)*(e.r/100);
+  var need=(p.T*p.F-saved)/(p.B*(e.i/100))*100;
+  $("must").innerHTML=p.B<=0||e.i<=0?"Enter an overdue balance and an incremental share to see this.":need<=0?"The "+p.T+"x target is already met by agent savings alone, which is worth challenging.":
+    "To reach "+p.T+"x, with the other expected assumptions held, the cure rate must rise by <b>"+need.toFixed(2)+" points</b>, against "+e.u+" expected. A control group is what would prove or disprove that.";
+}
+
+/* Account health */
+var SIG={usage:"Usage",outcomes:"Outcomes",quality:"Call quality",friction:"Service friction",rel:"Relationship"};
+var DEF={usage:25,outcomes:30,quality:20,friction:10,rel:15};
+var w=Object.assign({},DEF);
+var C=[
+{n:"Merantia Credit",uc:"Collections",acv:720,vol:-14,base:-5,linked:true,actU:0.29,actS:31,qa:-4,fl:3,inc:1,cr:44,br:1,qbr:150,tr:50,ch:false},
+{n:"Selatel Mobile",uc:"Activation",acv:540,vol:2,base:1,lab:"Activation rate",tgt:24,ratio:97,qa:-10,fl:5,inc:0,cr:10,br:0,qbr:180,tr:40,ch:true},
+{n:"Kintara Insurance",uc:"Collections",acv:380,vol:-35,base:-32,lab:"Promise-to-pay rate",tgt:34,ratio:104,qa:1,fl:0,inc:0,cr:6,br:0,qbr:60,tr:90,ch:false},
+{n:"Bayuwan Finance",uc:"Collections",acv:960,vol:-42,base:3,lab:"Promise-to-pay rate",tgt:38,ratio:62,qa:-6,fl:3,inc:2,cr:52,br:2,qbr:170,tr:55,ch:false},
+{n:"Serojana Bank",uc:"Inbound service",acv:1200,vol:-22,base:0,lab:"First contact resolution",tgt:80,ratio:70,qa:-5,fl:4,inc:3,cr:40,br:1,qbr:130,tr:70,ch:false},
+{n:"Tanjungo Mobile",uc:"Activation",acv:430,vol:-24,base:-2,lab:"Activation rate",tgt:22,ratio:76,qa:-1,fl:1,inc:1,cr:20,br:0,qbr:110,tr:75,ch:false},
+{n:"Gemilra Takaful",uc:"Collections",acv:310,vol:-8,base:-6,lab:"Promise-to-pay rate",tgt:30,ratio:88,qa:-4,fl:4,inc:1,cr:35,br:1,qbr:150,tr:50,ch:true},
+{n:"Lotusia Auto Finance",uc:"Collections",acv:650,vol:12,base:8,lab:"Promise-to-pay rate",tgt:36,ratio:118,qa:3,fl:0,inc:0,cr:5,br:0,qbr:40,tr:95,ch:false,grow:"This client uses outbound only. Propose call quality monitoring next, using their own results as the case."},
+{n:"Pelitra Energy",uc:"Collections",acv:260,vol:-3,base:-1,lab:"Promise-to-pay rate",tgt:28,ratio:101,qa:0,fl:1,inc:0,cr:12,br:0,qbr:85,tr:80,ch:false},
+{n:"Awanis Telco",uc:"Inbound service",acv:880,vol:20,base:15,lab:"First contact resolution",tgt:78,ratio:109,qa:2,fl:0,inc:0,cr:8,br:0,qbr:55,tr:90,ch:false,grow:"This client uses inbound only and its base is growing. Propose outbound activation for new subscribers."},
+{n:"Indera Retail Credit",uc:"Collections",acv:340,vol:-10,base:-6,lab:"Promise-to-pay rate",tgt:32,ratio:93,qa:-2,fl:1,inc:1,cr:18,br:0,qbr:100,tr:65,ch:false}
+];
+var filter="All",openAcct=null,reviewed={};
+function ratio(c){return c.linked?Math.round((c.actU/promise.u+c.actS/promise.s)/2*100):c.ratio}
+function risks(c){
+  var r=ratio(c);
+  return{usage:clamp(-(c.vol-c.base)/40*100),outcomes:clamp((100-r)/40*100),
+    quality:clamp(Math.max(0,-c.qa)/10*60+c.fl/5*40),
+    friction:clamp(c.inc*20+Math.max(0,c.cr-14)/30*40+c.br*20),
+    rel:clamp(Math.max(0,c.qbr-90)/90*50+(100-c.tr)/100*30+(c.ch?40:0))};
+}
+function score(c){
+  var R=risks(c),t=0,s=0;Object.keys(w).forEach(function(k){t+=w[k];s+=w[k]*R[k]});
+  return t?Math.round(s/t):0;
+}
+function band(s){return s>=60?"HIGH":s>=35?"MEDIUM":"LOW"}
+function isGrow(c){return !!c.grow&&score(c)<25&&ratio(c)>=105}
+function move(x){return x>0?"up "+x+"%":x<0?"down "+(-x)+"%":"flat"}
+function count(n,one,many){return n+" "+(n==1?one:many)}
+function evidence(c,k){
+  var r=ratio(c);
+  if(k=="usage")return "Call volume is "+move(c.vol)+" against the same point last cycle, while the client's own base is "+move(c.base);
+  if(k=="outcomes")return c.linked?"Cure uplift is "+c.actU+" points against "+count(promise.u,"point","points")+" promised, and "+c.actS+"% of calls are automated against "+promise.s+"% promised":c.lab+" is "+(c.tgt*r/100).toFixed(1)+"% against "+c.tgt+"% promised";
+  if(k=="quality")return "QM score is "+(c.qa>0?"up "+c.qa:c.qa<0?"down "+(-c.qa):"flat")+(c.qa?" "+(Math.abs(c.qa)==1?"point":"points"):"")+" over 3 months, with "+count(c.fl,"compliance flag","compliance flags")+" per 1,000 calls";
+  if(k=="friction")return count(c.inc,"open priority incident","open priority incidents")+", a change request open for "+c.cr+" days, and "+count(c.br,"SLA breach","SLA breaches")+" last quarter";
+  return "Last QBR was "+c.qbr+" days ago, training attendance is "+c.tr+"%"+(c.ch?", and the client's main sponsor has left":"");
+}
+var PLAY={
+ usage:{owner:"Customer success lead with the client's operations owner",step:"Ask what changed in their campaign plan, then rebuild the volume forecast with them."},
+ outcomes:{owner:"Solution lead with conversation design",step:"Review failed calls against the promise, agree one fix, and retest it on a control group."},
+ quality:{owner:"Conversation design with the client's compliance team",step:"Trace the flags to the script step behind them, fix it, and retest before redeploying."},
+ friction:{owner:"Support lead with engineering",step:"Clear the oldest incident and change request, then send the client a dated recovery plan."},
+ rel:{owner:"Account manager with an executive sponsor",step:"Book a QBR within two weeks, find the new sponsor, and rerun product training."}
+};
+function topSignals(c){var R=risks(c);return Object.keys(R).map(function(k){return{k:k,c:R[k]*w[k]}}).sort(function(a,b){return b.c-a.c})}
+function reason(c){
+  var s=score(c);
+  if(isGrow(c))return "Beating the promise at "+ratio(c)+"%, with a growing base.";
+  if(band(s)=="LOW"&&c.vol<=-20&&c.vol-c.base>-10)return "Volume fell, but so did the client's own base, so it is not flagged.";
+  if(band(s)=="LOW")return "No signal needs action this month.";
+  return evidence(c,topSignals(c)[0].k)+".";
+}
+function renderKpis(){
+  var tot=0,risk=0,h=0,g=0;C.forEach(function(c){var b=band(score(c));tot+=c.acv;if(b!="LOW")risk+=c.acv;if(b=="HIGH")h++;if(isGrow(c))g++});
+  $("k-n").textContent=C.length;$("k-h").textContent=h;$("k-v").textContent=Math.round(risk/tot*100)+"%";$("k-g").textContent=g;
+}
+function renderFilters(){
+  $("filters").innerHTML=["All","High","Medium","Low","Expansion"].map(function(f){return '<button aria-pressed="'+(filter==f)+'" data-f="'+f+'">'+f+"</button>"}).join("");
+}
+function renderAccts(){
+  var list=C.slice().sort(function(a,b){return score(b)-score(a)}).filter(function(c){
+    if(filter=="All")return true;if(filter=="Expansion")return isGrow(c);return band(score(c))==filter.toUpperCase()});
+  $("accts").innerHTML=list.length?list.map(function(c){
+    var s=score(c),b=band(s),isOpen=openAcct==c.n,html='<div class="acct"><button aria-expanded="'+isOpen+'" data-a="'+c.n+'"><div><div class="name">'+c.n+'</div><div class="small muted">'+c.uc+", RM "+c.acv+'k a year</div></div><div class="why">'+reason(c)+'</div><div><span class="pill '+b+'">'+b+"</span>"+(isGrow(c)?'<span class="pill GROW">EXPAND</span>':"")+'</div><div class="score">'+s+"</div></button>";
+    if(isOpen){
+      var R=risks(c),t=topSignals(c),pl=PLAY[t[0].k];
+      html+='<div class="detail"><div><h3 style="margin-top:10px">Why This Score</h3>'+Object.keys(SIG).map(function(k){return '<div class="sig"><div>'+SIG[k]+'</div><div class="meter"><i style="width:'+R[k]+'%"></i></div><div style="text-align:right">'+Math.round(R[k])+"</div></div>"}).join("")+
+        "<ul style='margin-top:10px'>"+Object.keys(SIG).map(function(k){return "<li class='small'><b>"+SIG[k]+":</b> "+evidence(c,k)+".</li>"}).join("")+"</ul></div>"+
+        '<div><h3 style="margin-top:10px">What Happens Next</h3>'+(isGrow(c)?"<p><b>Expansion:</b> "+c.grow+"</p>":b=="LOW"?"<p>Keep the normal QBR rhythm. No action this month.</p>":"<p><b>Owner:</b> "+pl.owner+".</p><p><b>Next Step:</b> "+pl.step+"</p>")+
+        "<h3>QBR Talking Points</h3><ul class='small'><li>Promise versus actual: "+evidence(c,"outcomes")+".</li>"+(b=="LOW"?"":"<li>Next concern: "+evidence(c,t[0].k=="outcomes"?t[1].k:t[0].k)+".</li>")+"<li>Ask: What does the client's plan look like for next quarter?</li></ul>"+
+        '<p class="small muted">A person decides and acts. Nothing is sent automatically.</p><button class="btn ghost" data-r="'+c.n+'">'+(reviewed[c.n]?"Reviewed":"Mark as reviewed")+"</button></div></div>";
+    }
+    return html+"</div>"}).join(""):'<p class="muted">No accounts in this group.</p>';
+}
+function renderHealth(){renderKpis();renderFilters();renderAccts()}
+function buildWeights(){
+  $("weights").innerHTML=Object.keys(SIG).map(function(k){return '<div><label for="w-'+k+'">'+SIG[k]+'<output id="o-'+k+'"></output></label><input type="range" id="w-'+k+'" data-w="'+k+'" min="0" max="50" step="5" value="'+w[k]+'"></div>'}).join("");
+  syncW();
+}
+function syncW(){var t=0;Object.keys(w).forEach(function(k){t+=w[k]});Object.keys(w).forEach(function(k){$("o-"+k).textContent=(t?Math.round(w[k]/t*100):0)+"%"})}
+
+/* Events */
+document.querySelector(".tabs").addEventListener("click",function(e){var t=e.target.getAttribute("data-tab");if(!t)return;
+  ["case","health","real"].forEach(function(s){$(s).classList.toggle("hide",s!=t);$("t-"+s).setAttribute("aria-selected",s==t)})});
+$("case").addEventListener("input",function(e){var k=e.target.getAttribute("data-k");if(k)A[k].v[+e.target.getAttribute("data-j")]=+e.target.value||0;renderCase()});
+$("promiseBtn").addEventListener("click",function(){promise={u:A.u.v[1]||0.01,s:A.s.v[1]||1};
+  var c=C[0],s=score(c);$("promiseMsg").textContent="Merantia's promise is now "+count(promise.u,"point","points")+" of cure uplift and "+promise.s+"% of calls automated. Its health score is "+s+" ("+band(s)+"). See Account Health.";renderHealth()});
+$("weights").addEventListener("input",function(e){var k=e.target.getAttribute("data-w");if(!k)return;w[k]=+e.target.value;syncW();renderHealth()});
+$("resetW").addEventListener("click",function(){w=Object.assign({},DEF);buildWeights();renderHealth()});
+$("filters").addEventListener("click",function(e){var f=e.target.getAttribute("data-f");if(f){filter=f;openAcct=null;renderHealth()}});
+$("accts").addEventListener("click",function(e){var r=e.target.closest("[data-r]");if(r){var n=r.getAttribute("data-r");reviewed[n]=!reviewed[n];renderAccts();return}
+  var a=e.target.closest("[data-a]");if(a){var m=a.getAttribute("data-a");openAcct=openAcct==m?null:m;renderAccts()}});
+
+buildAssump();renderCase();buildWeights();renderHealth();
+</script>
+</body>
+</html>
