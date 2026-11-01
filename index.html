@@ -18,7 +18,7 @@ p{margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:13.5px}
 .tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
 .grid2{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:14px;align-items:stretch;margin-bottom:14px}
-.grid2>.card{margin-bottom:0}.grid2>.full{grid-column:1/-1}
+.grid2>.card{margin-bottom:0}
 .logcard{display:flex;flex-direction:column}
 .logscroll{flex:1 1 0;height:0;min-height:0;overflow-y:auto;padding-right:4px}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
@@ -124,12 +124,6 @@ textarea{min-height:58px;resize:vertical}
         <p class="muted small">Change one assumption at a time and keep the others at expected. The figures are net of vendor fee, per month.</p>
         <div id="tornado"></div>
       </div>
-      <div class="card full">
-        <h2>Set the Promise</h2>
-        <p>Once the client agrees these figures, they become the target that Account Health tracks.</p>
-        <button class="btn" id="promiseBtn">Make the expected case Telkara Broadband's promise</button>
-        <p class="small muted" id="promiseMsg" style="margin:8px 0 0"></p>
-      </div>
     </div>
   </section>
 
@@ -192,12 +186,11 @@ var clamp=function(x){return Math.max(0,Math.min(100,x))};
 var A={s:{label:"Calls AI takes over, %",v:[0,0,0],step:5},r:{label:"Saving actually realised, %",v:[0,0,0],step:5},u:{label:"Outcome uplift, points",v:[0,0,0],step:0.1}};
 var SCENARIO={A:60,C:4500,N:20000,V:750,F:60000,I:150000,s:[20,35,50],r:[40,60,80],u:[0.2,0.5,1]};
 var loaded=false;
-var promise={u:SCENARIO.u[1],s:SCENARIO.s[1]};
 function setScenario(on){
   loaded=on;
   ["A","C","N","V","F","I"].forEach(function(f){$(f).value=on?SCENARIO[f].toLocaleString("en-US"):""});
   Object.keys(A).forEach(function(k){A[k].v=on?SCENARIO[k].slice():[0,0,0]});
-  $("loadBtn").textContent=on?"Clear figures":"Load scenario";$("promiseMsg").textContent="";
+  $("loadBtn").textContent=on?"Clear figures":"Load scenario";
   buildAssump();renderCase();
 }
 function num(id){return +$(id).value.replace(/,/g,"")||0}
@@ -237,7 +230,7 @@ function renderCase(){
   $("tornado").innerHTML="<table><thead><tr><th>Assumption</th><th>When low</th><th>When high</th><th>Gap</th></tr></thead><tbody>"+rows.map(function(r){
     var c=r==top?' class="exp"':"";
     return "<tr><td"+c+">"+A[r.k].label.split(",")[0]+"</td><td"+c+">"+rm(r.lo)+"</td><td"+c+">"+rm(r.hi)+"</td><td"+c+">"+rm(Math.abs(r.hi-r.lo))+"</td></tr>"}).join("")+
-    '</tbody></table><p style="margin:12px 0 0">Expected case: <b>'+rm(net)+" a month</b>. The biggest gap is <b>"+A[top.k].label.split(",")[0].toLowerCase()+"</b>, so test that first in the pilot.</p>";
+    '</tbody></table><p style="margin:12px 0 0">Expected case: <b>'+rm(net)+" a month</b>. The biggest gap is <b>"+A[top.k].label.split(",")[0].toLowerCase().replace(/\bai\b/,"AI")+"</b>, so test that first in the pilot.</p>";
 }
 
 /* Account health */
@@ -245,7 +238,7 @@ var SIG={usage:"Usage",outcomes:"Outcomes",quality:"Call quality",friction:"Serv
 var DEF={usage:25,outcomes:30,quality:20,friction:10,rel:15};
 var w=Object.assign({},DEF);
 var C=[
-{n:"Telkara Broadband",uc:"Renewals",acv:720,vol:-14,base:-5,linked:true,actU:0.29,actS:31,qa:-4,fl:3,inc:1,cr:44,br:1,qbr:150,tr:50,ch:false},
+{n:"Telkara Broadband",uc:"Renewals",acv:720,vol:-14,base:-5,lab:"Renewal rate",tgt:32,ratio:73,qa:-4,fl:3,inc:1,cr:44,br:1,qbr:150,tr:50,ch:false},
 {n:"Selatel Mobile",uc:"Activation",acv:540,vol:2,base:1,lab:"Activation rate",tgt:24,ratio:97,qa:-10,fl:5,inc:0,cr:10,br:0,qbr:180,tr:40,ch:true},
 {n:"Kintara Insurance",uc:"Collections",acv:380,vol:-35,base:-32,lab:"Promise-to-pay rate",tgt:34,ratio:104,qa:1,fl:0,inc:0,cr:6,br:0,qbr:60,tr:90,ch:false},
 {n:"Bayuwan Finance",uc:"Collections",acv:960,vol:-42,base:3,lab:"Promise-to-pay rate",tgt:38,ratio:62,qa:-6,fl:3,inc:2,cr:52,br:2,qbr:170,tr:55,ch:false},
@@ -258,7 +251,7 @@ var C=[
 {n:"Indera Retail Credit",uc:"Collections",acv:340,vol:-10,base:-6,lab:"Promise-to-pay rate",tgt:32,ratio:93,qa:-2,fl:1,inc:1,cr:18,br:0,qbr:100,tr:65,ch:false}
 ];
 var filter="All",openAcct=null,reviewed={};
-function ratio(c){return c.linked?Math.round((c.actU/promise.u+c.actS/promise.s)/2*100):c.ratio}
+function ratio(c){return c.ratio}
 function risks(c){
   var r=ratio(c);
   return{usage:clamp(-(c.vol-c.base)/40*100),outcomes:clamp((100-r)/40*100),
@@ -277,7 +270,7 @@ function count(n,one,many){return n+" "+(n==1?one:many)}
 function evidence(c,k){
   var r=ratio(c);
   if(k=="usage")return "Call volume is "+move(c.vol)+" against the same point last cycle, while the client's own base is "+move(c.base);
-  if(k=="outcomes")return c.linked?"Outcome uplift is "+c.actU+" points against "+count(promise.u,"point","points")+" promised, and "+c.actS+"% of calls are automated against "+promise.s+"% promised":c.lab+" is "+(c.tgt*r/100).toFixed(1)+"% against "+c.tgt+"% promised";
+  if(k=="outcomes")return c.lab+" is "+(c.tgt*r/100).toFixed(1)+"% against "+c.tgt+"% promised";
   if(k=="quality")return "QM score is "+(c.qa>0?"up "+c.qa:c.qa<0?"down "+(-c.qa):"flat")+(c.qa?" "+(Math.abs(c.qa)==1?"point":"points"):"")+" over 3 months, with "+count(c.fl,"compliance flag","compliance flags")+" per 1,000 calls";
   if(k=="friction")return count(c.inc,"open priority incident","open priority incidents")+", a change request open for "+c.cr+" days, and "+count(c.br,"SLA breach","SLA breaches")+" last quarter";
   return "Last QBR was "+c.qbr+" days ago, training attendance is "+c.tr+"%"+(c.ch?", and the client's main sponsor has left":"");
@@ -378,9 +371,6 @@ $("case").addEventListener("input",function(e){var el=e.target;
   if(el.classList.contains("num")){var fromEnd=el.value.length-el.selectionEnd,d=el.value.replace(/\D/g,"");el.value=d?(+d).toLocaleString("en-US"):"";var at=Math.max(0,el.value.length-fromEnd);el.setSelectionRange(at,at)}
   var k=el.getAttribute("data-k");if(k)A[k].v[+e.target.getAttribute("data-j")]=+e.target.value||0;renderCase()});
 $("loadBtn").addEventListener("click",function(){setScenario(!loaded)});
-$("promiseBtn").addEventListener("click",function(){if(!A.u.v[1]||!A.s.v[1]){$("promiseMsg").textContent="Load the scenario or enter the expected assumptions first.";return}
-  promise={u:A.u.v[1],s:A.s.v[1]};
-  var s=score(C[0]);$("promiseMsg").textContent="Telkara Broadband's promise is now "+count(promise.u,"point","points")+" of outcome uplift and "+promise.s+"% of calls automated. Its health score is "+s+" ("+band(s)+"). See Account Health.";renderHealth()});
 $("weights").addEventListener("input",function(e){var k=e.target.getAttribute("data-w");if(!k)return;w[k]=+e.target.value;syncW();renderHealth()});
 $("resetW").addEventListener("click",function(){w=Object.assign({},DEF);buildWeights();renderHealth()});
 $("filters").addEventListener("click",function(e){var f=e.target.getAttribute("data-f");if(f){filter=f;openAcct=null;renderHealth()}});
