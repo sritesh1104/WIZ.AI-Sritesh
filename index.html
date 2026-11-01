@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Promise Tracker Concept</title>
 <style>
-:root{--bg:#f4f6f8;--card:#fff;--ink:#17212b;--muted:#5b6875;--line:#dde3e9;--accent:#0f6e6e;--accent-soft:#e2f1f0;--high:#b3261e;--high-soft:#fbe9e7;--med:#9a5b00;--med-soft:#fdf1dc;--low:#22703a;--low-soft:#e5f4e9;--grow:#2f4fa8;--grow-soft:#e8edfb}
+:root{--bg:#f3f7fa;--card:#fff;--ink:#12303f;--muted:#566b78;--line:#d9e4ec;--accent:#146EA3;--accent-soft:#e3f0f8;--orange:#ED7930;--orange-text:#B4551A;--orange-soft:#fdeee3;--high:#b3261e;--high-soft:#fbe9e7;--med:#B4551A;--med-soft:#fdeee3;--low:#22703a;--low-soft:#e5f4e9;--grow:#146EA3;--grow-soft:#e3f0f8}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
 .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
 h1{font-size:26px;margin:0}h2{font-size:19px;margin:0 0 4px}h3{font-size:15px;margin:0 0 6px}
 p{margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:13.5px}
-.notice{background:var(--ink);color:#fff;padding:8px 16px;font-size:14px;text-align:center}
-.tag{color:var(--accent);font-weight:600;margin-top:2px}
+.notice{background:var(--accent);color:#fff;padding:8px 16px;font-size:14px;text-align:center;border-bottom:4px solid var(--orange)}
+.tag{color:var(--orange-text);font-weight:600;margin-top:2px}
 .tabs{display:flex;gap:6px;margin:16px 0;flex-wrap:wrap}
 .tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
 .tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -31,9 +31,9 @@ th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:
 .btn.ghost{background:#fff;color:var(--accent)}
 .bar-row{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;margin-bottom:9px;font-size:14px}
 .track{position:relative;height:24px;background:#eef1f4;border-radius:5px}
-.span{position:absolute;top:0;bottom:0;background:#8cc4c1;border-radius:5px}
-.tick{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--ink)}
-.zero{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--high)}
+.span{position:absolute;top:0;bottom:0;background:#8fbdd9;border-radius:5px}
+.tick{position:absolute;top:-2px;bottom:-2px;width:4px;background:var(--orange)}
+.zero{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
 .ends{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
 .weights{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
 .weights label{display:block;font-weight:600;font-size:13.5px}.weights output{float:right;color:var(--accent);font-weight:700}
@@ -55,11 +55,19 @@ ul{margin:0 0 10px;padding-left:19px}li{margin-bottom:4px}
 .callout{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:14.5px;margin-bottom:12px}
 .warn{background:var(--med-soft)}
 .hide{display:none}
+select,textarea,input[type=text],input[type=search]{width:100%;padding:7px 9px;border:1px solid #b9c3cd;border-radius:6px;font:inherit;background:#fff;color:var(--ink)}
+textarea{min-height:58px;resize:vertical}
+.form label{display:block;font-weight:600;margin:0 0 3px}.form>div{margin-bottom:10px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.log{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:14.5px;background:#fff}
+.log.bad{border-left-color:var(--orange)}
+.log p{margin:0 0 4px}.log .meta{font-size:13px;color:var(--muted)}
+.linkbtn{background:none;border:0;color:var(--high);font:inherit;font-size:13px;cursor:pointer;padding:0;text-decoration:underline}
 @media (max-width:860px){.grid2,.detail{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.weights{grid-template-columns:repeat(2,minmax(0,1fr))}.acct>button{grid-template-columns:minmax(0,1fr) auto 40px}.acct .why{grid-column:1/-1;grid-row:2}}
 </style>
 </head>
 <body>
-<div class="notice">Concept demo by Sritesh Naidu. All clients and figures are made up. Not a WIZ.AI product and not production work.</div>
+<div class="notice">Built by Sritesh Naidu</div>
 <div class="wrap">
   <h1>Promise Tracker</h1>
   <p class="tag">What we promise at the sale is what we track after it.</p>
@@ -67,7 +75,8 @@ ul{margin:0 0 10px;padding-left:19px}li{margin-bottom:4px}
   <div class="tabs" role="tablist">
     <button role="tab" id="t-case" aria-selected="true" data-tab="case">1. Business Case</button>
     <button role="tab" id="t-health" aria-selected="false" data-tab="health">2. Account Health</button>
-    <button role="tab" id="t-real" aria-selected="false" data-tab="real">3. Making It Real</button>
+    <button role="tab" id="t-log" aria-selected="false" data-tab="log">3. Feedback Log</button>
+    <button role="tab" id="t-real" aria-selected="false" data-tab="real">4. Making It Real</button>
   </div>
 
   <section id="case">
@@ -101,7 +110,7 @@ ul{margin:0 0 10px;padding-left:19px}li{margin-bottom:4px}
         </div>
         <div class="card">
           <h2>What Moves the Answer Most</h2>
-          <p class="muted small">Net benefit a month as each assumption moves from low to high, with the others held at expected. The black mark is the expected case, and the red line is break-even.</p>
+          <p class="muted small">Net benefit a month as each assumption moves from low to high, with the others held at expected. The orange mark is the expected case, and the dark line is break-even.</p>
           <div id="tornado"></div>
         </div>
         <div class="card">
@@ -131,6 +140,36 @@ ul{margin:0 0 10px;padding-left:19px}li{margin-bottom:4px}
     <div id="accts"></div>
   </section>
 
+  <section id="log" class="hide">
+    <div class="grid2">
+      <form class="card form" id="logForm">
+        <h2>Share What You Learned</h2>
+        <p class="muted small">What did you try on an account, and what should the next person do differently?</p>
+        <div class="two">
+          <div><label for="l-who">Your name</label><input type="text" id="l-who" required maxlength="60"></div>
+          <div><label for="l-acct">Account</label><select id="l-acct"></select></div>
+        </div>
+        <div class="two">
+          <div><label for="l-sig">Signal</label><select id="l-sig"></select></div>
+          <div><label for="l-res">Result</label><select id="l-res"><option>Worked</option><option>Partly worked</option><option>Did not work</option></select></div>
+        </div>
+        <div><label for="l-tried">What we tried</label><textarea id="l-tried" required maxlength="400"></textarea></div>
+        <div><label for="l-lesson">Lesson for the team</label><textarea id="l-lesson" required maxlength="400"></textarea></div>
+        <button class="btn" type="submit">Add to the log</button>
+        <p class="small muted" id="logMsg" style="margin:8px 0 0"></p>
+        <p class="small muted" style="margin:8px 0 0">Prototype: Entries are saved in this browser only. A real team version needs a shared database and team logins.</p>
+      </form>
+      <div class="card">
+        <h2>Team Log</h2>
+        <div class="two" style="margin:8px 0 12px">
+          <select id="f-sig" aria-label="Filter by signal"></select>
+          <input type="search" id="f-q" placeholder="Search the log" aria-label="Search the log">
+        </div>
+        <div id="logList"></div>
+      </div>
+    </div>
+  </section>
+
   <section id="real" class="hide">
     <div class="grid2">
       <div class="card">
@@ -140,6 +179,7 @@ ul{margin:0 0 10px;padding-left:19px}li{margin-bottom:4px}
           <li><b>Data Access:</b> Call volumes, outcome tags, QM scores, the ticket system and the QBR log, per account.</li>
           <li><b>A Baseline:</b> What was promised to each client at the sale, in writing.</li>
           <li><b>A Portfolio Figure:</b> The size of each client's own base, so a volume drop can be read fairly.</li>
+          <li><b>A Shared Log:</b> A shared database with team logins, because the demo log stays in one browser.</li>
         </ul>
         <h2>How I Would Test It</h2>
         <ul>
@@ -284,7 +324,8 @@ function renderAccts(){
         "<ul style='margin-top:10px'>"+Object.keys(SIG).map(function(k){return "<li class='small'><b>"+SIG[k]+":</b> "+evidence(c,k)+".</li>"}).join("")+"</ul></div>"+
         '<div><h3 style="margin-top:10px">What Happens Next</h3>'+(isGrow(c)?"<p><b>Expansion:</b> "+c.grow+"</p>":b=="LOW"?"<p>Keep the normal QBR rhythm. No action this month.</p>":"<p><b>Owner:</b> "+pl.owner+".</p><p><b>Next Step:</b> "+pl.step+"</p>")+
         "<h3>QBR Talking Points</h3><ul class='small'><li>Promise versus actual: "+evidence(c,"outcomes")+".</li>"+(b=="LOW"?"":"<li>Next concern: "+evidence(c,t[0].k=="outcomes"?t[1].k:t[0].k)+".</li>")+"<li>Ask: What does the client's plan look like for next quarter?</li></ul>"+
-        '<p class="small muted">A person decides and acts. Nothing is sent automatically.</p><button class="btn ghost" data-r="'+c.n+'">'+(reviewed[c.n]?"Reviewed":"Mark as reviewed")+"</button></div></div>";
+        lessonsFor(t[0].k,b)+
+        '<p class="small muted">A person decides and acts. Nothing is sent automatically.</p><button class="btn ghost" data-r="'+c.n+'">'+(reviewed[c.n]?"Reviewed":"Mark as reviewed")+'</button> <button class="btn ghost" data-l="'+c.n+'" data-s="'+t[0].k+'">Log feedback</button></div></div>';
     }
     return html+"</div>"}).join(""):'<p class="muted">No accounts in this group.</p>';
 }
@@ -295,19 +336,63 @@ function buildWeights(){
 }
 function syncW(){var t=0;Object.keys(w).forEach(function(k){t+=w[k]});Object.keys(w).forEach(function(k){$("o-"+k).textContent=(t?Math.round(w[k]/t*100):0)+"%"})}
 
+/* Feedback log */
+var LOGKEY="promiseTrackerLog";
+var SAMPLE=[
+{who:"Sample: Customer success",acct:"Gemilra Takaful",sig:"rel",res:"Did not work",tried:"Sent a recap email to the old sponsor's team after the sponsor left.",lesson:"Nobody owned it on their side. Find the new sponsor first, then book the QBR."},
+{who:"Sample: Conversation design",acct:"Selatel Mobile",sig:"quality",res:"Worked",tried:"Traced compliance flags to one script step and retested it before redeploying.",lesson:"Fix the step behind the flags first. Retraining the whole flow was not needed."},
+{who:"Sample: Solution lead",acct:"Bayuwan Finance",sig:"outcomes",res:"Partly worked",tried:"Changed the call script to lift promise-to-pay in the whole segment at once.",lesson:"Change one segment against a control group, or you cannot tell what helped."},
+{who:"Sample: Support lead",acct:"Serojana Bank",sig:"friction",res:"Worked",tried:"Sent the client a dated recovery plan for the oldest incident and change request.",lesson:"Clients accept delays better with dates and one named owner."},
+{who:"Sample: Customer success",acct:"Kintara Insurance",sig:"usage",res:"Did not work",tried:"Escalated a large volume drop as churn risk.",lesson:"Their overdue base had fallen too. Check the client's own base before escalating."}
+];
+var mine=[];
+try{mine=JSON.parse(localStorage.getItem(LOGKEY))||[]}catch(err){mine=[]}
+function saveLog(){try{localStorage.setItem(LOGKEY,JSON.stringify(mine));return true}catch(err){return false}}
+function esc(s){return String(s).replace(/[&<>"']/g,function(ch){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]})}
+function allLog(){return mine.concat(SAMPLE)}
+function logCard(x,i){
+  return '<div class="log'+(x.res=="Did not work"?" bad":"")+'"><p class="meta">'+esc(x.who)+" on "+esc(x.acct)+", "+esc(SIG[x.sig])+": <b>"+esc(x.res)+"</b></p><p><b>Tried:</b> "+esc(x.tried)+"</p><p><b>Lesson:</b> "+esc(x.lesson)+"</p>"+(i>=0?'<button type="button" class="linkbtn" data-del="'+i+'">Delete my entry</button>':"")+"</div>";
+}
+function lessonsFor(sig,b){
+  if(b=="LOW")return "";
+  var hits=allLog().filter(function(x){return x.sig==sig}).slice(0,2);
+  return hits.length?"<h3>Lessons From the Team</h3>"+hits.map(function(x){return logCard(x,-1)}).join(""):"";
+}
+function renderLog(){
+  var sig=$("f-sig").value,q=$("f-q").value.trim().toLowerCase();
+  var items=mine.map(function(x,i){return{x:x,i:i}}).concat(SAMPLE.map(function(x){return{x:x,i:-1}})).filter(function(o){
+    return (sig=="all"||o.x.sig==sig)&&(!q||[o.x.who,o.x.acct,o.x.tried,o.x.lesson].join(" ").toLowerCase().indexOf(q)>=0)});
+  $("logList").innerHTML=items.length?items.map(function(o){return logCard(o.x,o.i)}).join(""):'<p class="muted">No entries match.</p>';
+}
+function buildLog(){
+  $("l-acct").innerHTML=C.map(function(c){return "<option>"+c.n+"</option>"}).join("");
+  var opts=Object.keys(SIG).map(function(k){return '<option value="'+k+'">'+SIG[k]+"</option>"}).join("");
+  $("l-sig").innerHTML=opts;$("f-sig").innerHTML='<option value="all">All signals</option>'+opts;
+  renderLog();
+}
+function showTab(t){["case","health","log","real"].forEach(function(s){$(s).classList.toggle("hide",s!=t);$("t-"+s).setAttribute("aria-selected",s==t)})}
+
 /* Events */
-document.querySelector(".tabs").addEventListener("click",function(e){var t=e.target.getAttribute("data-tab");if(!t)return;
-  ["case","health","real"].forEach(function(s){$(s).classList.toggle("hide",s!=t);$("t-"+s).setAttribute("aria-selected",s==t)})});
+document.querySelector(".tabs").addEventListener("click",function(e){var t=e.target.getAttribute("data-tab");if(t)showTab(t)});
+$("logForm").addEventListener("submit",function(e){e.preventDefault();
+  var who=$("l-who").value.trim(),tried=$("l-tried").value.trim(),lesson=$("l-lesson").value.trim();
+  if(!who||!tried||!lesson){$("logMsg").textContent="Please fill in your name, what you tried and the lesson.";return}
+  mine.unshift({who:who,acct:$("l-acct").value,sig:$("l-sig").value,res:$("l-res").value,tried:tried,lesson:lesson});
+  $("logMsg").textContent=saveLog()?"Added to the log.":"Added for now, but this browser would not save it.";
+  $("l-tried").value="";$("l-lesson").value="";renderLog();renderAccts()});
+$("f-sig").addEventListener("change",renderLog);$("f-q").addEventListener("input",renderLog);
+$("logList").addEventListener("click",function(e){var d=e.target.getAttribute("data-del");if(d===null)return;mine.splice(+d,1);saveLog();renderLog();renderAccts()});
 $("case").addEventListener("input",function(e){var k=e.target.getAttribute("data-k");if(k)A[k].v[+e.target.getAttribute("data-j")]=+e.target.value||0;renderCase()});
 $("promiseBtn").addEventListener("click",function(){promise={u:A.u.v[1]||0.01,s:A.s.v[1]||1};
   var c=C[0],s=score(c);$("promiseMsg").textContent="Merantia's promise is now "+count(promise.u,"point","points")+" of cure uplift and "+promise.s+"% of calls automated. Its health score is "+s+" ("+band(s)+"). See Account Health.";renderHealth()});
 $("weights").addEventListener("input",function(e){var k=e.target.getAttribute("data-w");if(!k)return;w[k]=+e.target.value;syncW();renderHealth()});
 $("resetW").addEventListener("click",function(){w=Object.assign({},DEF);buildWeights();renderHealth()});
 $("filters").addEventListener("click",function(e){var f=e.target.getAttribute("data-f");if(f){filter=f;openAcct=null;renderHealth()}});
-$("accts").addEventListener("click",function(e){var r=e.target.closest("[data-r]");if(r){var n=r.getAttribute("data-r");reviewed[n]=!reviewed[n];renderAccts();return}
+$("accts").addEventListener("click",function(e){var l=e.target.closest("[data-l]");if(l){$("l-acct").value=l.getAttribute("data-l");$("l-sig").value=l.getAttribute("data-s");showTab("log");$("l-who").focus();return}
+  var r=e.target.closest("[data-r]");if(r){var n=r.getAttribute("data-r");reviewed[n]=!reviewed[n];renderAccts();return}
   var a=e.target.closest("[data-a]");if(a){var m=a.getAttribute("data-a");openAcct=openAcct==m?null:m;renderAccts()}});
 
-buildAssump();renderCase();buildWeights();renderHealth();
+buildLog();buildAssump();renderCase();buildWeights();renderHealth();
 </script>
 </body>
 </html>
