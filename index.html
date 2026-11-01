@@ -84,14 +84,13 @@ textarea{min-height:58px;resize:vertical}
     <div class="grid2">
       <div class="card">
         <h2>Client Inputs</h2>
-        <p class="muted small">Pick a use case to load its figures. Every input can be changed live.</p>
-        <div class="field"><label for="uc">Use case</label><select id="uc"></select></div>
-        <div class="field"><label for="A">Agents on this work</label><input type="number" id="A" min="0"></div>
-        <div class="field"><label for="C">Cost per agent, RM a month</label><input type="number" id="C" min="0"></div>
-        <div class="field"><label for="N" id="N-label"></label><input type="number" id="N" min="0"></div>
-        <div class="field"><label for="V" id="V-label"></label><input type="number" id="V" min="0"></div>
-        <div class="field"><label for="F">Vendor fee, RM a month</label><input type="number" id="F" min="1" step="5000"></div>
-        <div class="field"><label for="I">One-off implementation, RM</label><input type="number" id="I" min="0" step="10000"></div>
+        <p class="muted small">Works for any client. Every input can be changed live.</p>
+        <div class="field"><label for="A">Agents on this work</label><input type="number" id="A" value="60" min="0"></div>
+        <div class="field"><label for="C">Cost per agent, RM a month</label><input type="number" id="C" value="4500" min="0"></div>
+        <div class="field"><label for="N">Customers to reach a month</label><input type="number" id="N" value="20000" min="0"></div>
+        <div class="field"><label for="V">Value per successful outcome, RM</label><input type="number" id="V" value="1500" min="0"></div>
+        <div class="field"><label for="F">Vendor fee, RM a month</label><input type="number" id="F" value="60000" min="1" step="5000"></div>
+        <div class="field"><label for="I">One-off implementation, RM</label><input type="number" id="I" value="150000" min="0" step="10000"></div>
         <div class="field"><label for="T">Target benefit multiple</label><input type="number" id="T" value="5" min="1" step="0.5"></div>
         <p class="muted small">Vendor pricing is a placeholder, because no pricing is public.</p>
       </div>
@@ -116,7 +115,7 @@ textarea{min-height:58px;resize:vertical}
       <div class="card full">
         <h2>What Must Be True</h2>
         <p id="must"></p>
-        <button class="btn" id="promiseBtn"></button>
+        <button class="btn" id="promiseBtn">Make the expected case Merantia Credit's promise</button>
         <p class="small muted" id="promiseMsg" style="margin:8px 0 0"></p>
       </div>
     </div>
@@ -178,22 +177,8 @@ var rm=function(n){var a=Math.abs(n);var s=a>=1e6?(a/1e6).toFixed(2)+"m":Math.ro
 var clamp=function(x){return Math.max(0,Math.min(100,x))};
 
 /* Business case */
-var PRE={
-coll:{name:"Collections",acct:"Merantia Credit",out:"Cure rate uplift",nLab:"Overdue accounts a month",vLab:"Average overdue balance, RM",A:60,C:4500,N:20000,V:1500,F:60000,I:150000,s:[20,35,50],u:[0.2,0.5,1]},
-act:{name:"Activation",acct:"Tanjungo Mobile",out:"Activation rate uplift",nLab:"Inactive sign-ups a month",vLab:"Value per activated customer, RM",A:25,C:4000,N:100000,V:60,F:40000,I:100000,s:[30,50,70],u:[0.5,1.5,3]},
-ren:{name:"Renewals and campaigns",acct:"Gemilra Takaful",out:"Renewal rate uplift",nLab:"Policies or contracts due a month",vLab:"Value per renewal, RM",A:30,C:4200,N:30000,V:250,F:45000,I:120000,s:[20,40,60],u:[0.5,1,2]},
-inb:{name:"Inbound service",acct:"Serojana Bank",out:"Repeat calls avoided",nLab:"Customer calls a month",vLab:"Cost per repeat call, RM",A:80,C:4000,N:200000,V:6,F:80000,I:180000,s:[30,50,70],u:[1,2,4]}
-};
-var uc="coll",A;
-var promise={};Object.keys(PRE).forEach(function(k){promise[k]={u:PRE[k].u[1],s:PRE[k].s[1]}});
-function loadPreset(k){
-  uc=k;var P=PRE[k];
-  ["A","C","N","V","F","I"].forEach(function(f){$(f).value=P[f]});
-  $("N-label").textContent=P.nLab;$("V-label").textContent=P.vLab;
-  $("promiseBtn").textContent="Make the expected case "+P.acct+"'s promise";$("promiseMsg").textContent="";
-  A={s:{label:"Calls AI takes over, %",v:P.s.slice(),step:5},r:{label:"Saving actually realised, %",v:[40,60,80],step:5},u:{label:P.out+", points",v:P.u.slice(),step:0.1},i:{label:"Incremental share, %",v:[30,50,70],step:5}};
-  buildAssump();renderCase();
-}
+var A={s:{label:"Calls AI takes over, %",v:[20,35,50],step:5},r:{label:"Saving actually realised, %",v:[40,60,80],step:5},u:{label:"Outcome uplift, points",v:[0.2,0.5,1],step:0.1},i:{label:"Incremental share, %",v:[30,50,70],step:5}};
+var promise={u:0.5,s:35};
 function inputs(){return{A:+$("A").value||0,C:+$("C").value||0,B:(+$("N").value||0)*(+$("V").value||0),F:+$("F").value||1,I:+$("I").value||0,T:+$("T").value||1}}
 function benefit(p,s,r,u,i){return p.A*p.C*(s/100)*(r/100)+p.B*(u/100)*(i/100)}
 function buildAssump(){
@@ -224,7 +209,7 @@ function renderCase(){
   var saved=p.A*p.C*(e.s/100)*(e.r/100);
   var need=(p.T*p.F-saved)/(p.B*(e.i/100))*100;
   $("must").innerHTML=p.B<=0||e.i<=0?"Enter the volume, the value and an incremental share to see this.":need<=0?"The "+p.T+"x target is already met by agent savings alone, which is worth challenging.":
-    "To reach "+p.T+"x, with the other expected assumptions held, "+PRE[uc].out.toLowerCase()+" must be <b>"+need.toFixed(2)+" points</b>, against "+e.u+" expected. A control group is what would prove or disprove that.";
+    "To reach "+p.T+"x, with the other expected assumptions held, outcome uplift must be <b>"+need.toFixed(2)+" points</b>, against "+e.u+" expected. A control group is what would prove or disprove that.";
 }
 
 /* Account health */
@@ -232,20 +217,20 @@ var SIG={usage:"Usage",outcomes:"Outcomes",quality:"Call quality",friction:"Serv
 var DEF={usage:25,outcomes:30,quality:20,friction:10,rel:15};
 var w=Object.assign({},DEF);
 var C=[
-{n:"Merantia Credit",uc:"Collections",acv:720,vol:-14,base:-5,linked:"coll",actU:0.29,actS:31,qa:-4,fl:3,inc:1,cr:44,br:1,qbr:150,tr:50,ch:false},
+{n:"Merantia Credit",uc:"Collections",acv:720,vol:-14,base:-5,linked:true,actU:0.29,actS:31,qa:-4,fl:3,inc:1,cr:44,br:1,qbr:150,tr:50,ch:false},
 {n:"Selatel Mobile",uc:"Activation",acv:540,vol:2,base:1,lab:"Activation rate",tgt:24,ratio:97,qa:-10,fl:5,inc:0,cr:10,br:0,qbr:180,tr:40,ch:true},
 {n:"Kintara Insurance",uc:"Collections",acv:380,vol:-35,base:-32,lab:"Promise-to-pay rate",tgt:34,ratio:104,qa:1,fl:0,inc:0,cr:6,br:0,qbr:60,tr:90,ch:false},
 {n:"Bayuwan Finance",uc:"Collections",acv:960,vol:-42,base:3,lab:"Promise-to-pay rate",tgt:38,ratio:62,qa:-6,fl:3,inc:2,cr:52,br:2,qbr:170,tr:55,ch:false},
-{n:"Serojana Bank",uc:"Inbound service",acv:1200,vol:-22,base:0,linked:"inb",actU:1.4,actS:35,qa:-5,fl:4,inc:3,cr:40,br:1,qbr:130,tr:70,ch:false},
-{n:"Tanjungo Mobile",uc:"Activation",acv:430,vol:-24,base:-2,linked:"act",actU:1.1,actS:39,qa:-1,fl:1,inc:1,cr:20,br:0,qbr:110,tr:75,ch:false},
-{n:"Gemilra Takaful",uc:"Renewals",acv:310,vol:-8,base:-6,linked:"ren",actU:0.85,actS:36,qa:-4,fl:4,inc:1,cr:35,br:1,qbr:150,tr:50,ch:true},
+{n:"Serojana Bank",uc:"Inbound service",acv:1200,vol:-22,base:0,lab:"First contact resolution",tgt:80,ratio:70,qa:-5,fl:4,inc:3,cr:40,br:1,qbr:130,tr:70,ch:false},
+{n:"Tanjungo Mobile",uc:"Activation",acv:430,vol:-24,base:-2,lab:"Activation rate",tgt:22,ratio:76,qa:-1,fl:1,inc:1,cr:20,br:0,qbr:110,tr:75,ch:false},
+{n:"Gemilra Takaful",uc:"Renewals",acv:310,vol:-8,base:-6,lab:"Renewal rate",tgt:30,ratio:88,qa:-4,fl:4,inc:1,cr:35,br:1,qbr:150,tr:50,ch:true},
 {n:"Lotusia Auto Finance",uc:"Collections",acv:650,vol:12,base:8,lab:"Promise-to-pay rate",tgt:36,ratio:118,qa:3,fl:0,inc:0,cr:5,br:0,qbr:40,tr:95,ch:false,grow:"This client uses outbound only. Propose call quality monitoring next, using their own results as the case."},
 {n:"Pelitra Energy",uc:"Collections",acv:260,vol:-3,base:-1,lab:"Promise-to-pay rate",tgt:28,ratio:101,qa:0,fl:1,inc:0,cr:12,br:0,qbr:85,tr:80,ch:false},
 {n:"Awanis Telco",uc:"Inbound service",acv:880,vol:20,base:15,lab:"First contact resolution",tgt:78,ratio:109,qa:2,fl:0,inc:0,cr:8,br:0,qbr:55,tr:90,ch:false,grow:"This client uses inbound only and its base is growing. Propose outbound activation for new subscribers."},
 {n:"Indera Retail Credit",uc:"Collections",acv:340,vol:-10,base:-6,lab:"Promise-to-pay rate",tgt:32,ratio:93,qa:-2,fl:1,inc:1,cr:18,br:0,qbr:100,tr:65,ch:false}
 ];
 var filter="All",openAcct=null,reviewed={};
-function ratio(c){if(!c.linked)return c.ratio;var p=promise[c.linked];return Math.round((c.actU/p.u+c.actS/p.s)/2*100)}
+function ratio(c){return c.linked?Math.round((c.actU/promise.u+c.actS/promise.s)/2*100):c.ratio}
 function risks(c){
   var r=ratio(c);
   return{usage:clamp(-(c.vol-c.base)/40*100),outcomes:clamp((100-r)/40*100),
@@ -264,7 +249,7 @@ function count(n,one,many){return n+" "+(n==1?one:many)}
 function evidence(c,k){
   var r=ratio(c);
   if(k=="usage")return "Call volume is "+move(c.vol)+" against the same point last cycle, while the client's own base is "+move(c.base);
-  if(k=="outcomes")return c.linked?PRE[c.linked].out+" is "+c.actU+" points against "+count(promise[c.linked].u,"point","points")+" promised, and "+c.actS+"% of calls are automated against "+promise[c.linked].s+"% promised":c.lab+" is "+(c.tgt*r/100).toFixed(1)+"% against "+c.tgt+"% promised";
+  if(k=="outcomes")return c.linked?"Outcome uplift is "+c.actU+" points against "+count(promise.u,"point","points")+" promised, and "+c.actS+"% of calls are automated against "+promise.s+"% promised":c.lab+" is "+(c.tgt*r/100).toFixed(1)+"% against "+c.tgt+"% promised";
   if(k=="quality")return "QM score is "+(c.qa>0?"up "+c.qa:c.qa<0?"down "+(-c.qa):"flat")+(c.qa?" "+(Math.abs(c.qa)==1?"point":"points"):"")+" over 3 months, with "+count(c.fl,"compliance flag","compliance flags")+" per 1,000 calls";
   if(k=="friction")return count(c.inc,"open priority incident","open priority incidents")+", a change request open for "+c.cr+" days, and "+count(c.br,"SLA breach","SLA breaches")+" last quarter";
   return "Last QBR was "+c.qbr+" days ago, training attendance is "+c.tr+"%"+(c.ch?", and the client's main sponsor has left":"");
@@ -362,9 +347,8 @@ $("logForm").addEventListener("submit",function(e){e.preventDefault();
 $("f-sig").addEventListener("change",renderLog);$("f-q").addEventListener("input",renderLog);
 $("logList").addEventListener("click",function(e){var d=e.target.getAttribute("data-del");if(d===null)return;mine.splice(+d,1);saveLog();renderLog();renderAccts()});
 $("case").addEventListener("input",function(e){var k=e.target.getAttribute("data-k");if(k)A[k].v[+e.target.getAttribute("data-j")]=+e.target.value||0;renderCase()});
-$("uc").addEventListener("change",function(e){loadPreset(e.target.value)});
-$("promiseBtn").addEventListener("click",function(){var pr=promise[uc]={u:A.u.v[1]||0.01,s:A.s.v[1]||1},P=PRE[uc];
-  var c=C.filter(function(x){return x.linked==uc})[0],s=score(c);$("promiseMsg").textContent=P.acct+"'s promise is now "+count(pr.u,"point","points")+" of "+P.out.toLowerCase()+" and "+pr.s+"% of calls automated. Its health score is "+s+" ("+band(s)+"). See Account Health.";renderHealth()});
+$("promiseBtn").addEventListener("click",function(){promise={u:A.u.v[1]||0.01,s:A.s.v[1]||1};
+  var s=score(C[0]);$("promiseMsg").textContent="Merantia Credit's promise is now "+count(promise.u,"point","points")+" of outcome uplift and "+promise.s+"% of calls automated. Its health score is "+s+" ("+band(s)+"). See Account Health.";renderHealth()});
 $("weights").addEventListener("input",function(e){var k=e.target.getAttribute("data-w");if(!k)return;w[k]=+e.target.value;syncW();renderHealth()});
 $("resetW").addEventListener("click",function(){w=Object.assign({},DEF);buildWeights();renderHealth()});
 $("filters").addEventListener("click",function(e){var f=e.target.getAttribute("data-f");if(f){filter=f;openAcct=null;renderHealth()}});
@@ -372,8 +356,7 @@ $("accts").addEventListener("click",function(e){var l=e.target.closest("[data-l]
   var r=e.target.closest("[data-r]");if(r){var n=r.getAttribute("data-r");reviewed[n]=!reviewed[n];renderAccts();return}
   var a=e.target.closest("[data-a]");if(a){var m=a.getAttribute("data-a");openAcct=openAcct==m?null:m;renderAccts()}});
 
-$("uc").innerHTML=Object.keys(PRE).map(function(k){return '<option value="'+k+'">'+PRE[k].name+"</option>"}).join("");
-buildLog();loadPreset("coll");buildWeights();renderHealth();
+buildLog();buildAssump();renderCase();buildWeights();renderHealth();
 </script>
 </body>
 </html>
