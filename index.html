@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Customer Journey &amp; Enablement Hub</title>
+<title>AI Enablement Manager Hub</title>
 <style>
 :root{--bg:#f3f7fa;--card:#fff;--ink:#12303f;--muted:#566b78;--line:#d9e4ec;--accent:#146EA3;--accent-soft:#e3f0f8;--orange:#ED7930;--orange-text:#B4551A;--orange-soft:#fdeee3;--high:#b3261e;--high-soft:#fbe9e7;--med:#B4551A;--med-soft:#fdeee3;--low:#22703a;--low-soft:#e5f4e9;--grow:#146EA3;--grow-soft:#e3f0f8}
 *{box-sizing:border-box}
@@ -74,7 +74,7 @@ textarea{min-height:58px;resize:vertical}
 <body>
 <div class="notice">Built by Sritesh Naidu for WIZ.AI</div>
 <div class="wrap">
-  <h1>Customer Journey &amp; Enablement Hub</h1>
+  <h1>AI Enablement Manager Hub</h1>
   <p class="tag" id="tagline">What we promise at the sale is what we track after it.</p>
 
   <div class="tabs" role="tablist">
@@ -315,11 +315,11 @@ function syncW(){var t=0;Object.keys(w).forEach(function(k){t+=w[k]});Object.key
 /* Feedback log */
 var LOGKEY="promiseTrackerLog";
 var SAMPLE=[
-{who:"Sample: Customer success",acct:"Gemilra Takaful",sig:"rel",res:"Did Not Work",tried:"Sent a recap email to the old sponsor's team after the sponsor left.",lesson:"Nobody owned it on their side. Find the new sponsor first, then book the QBR."},
-{who:"Sample: Conversation design",acct:"Selatel Mobile",sig:"quality",res:"Worked",tried:"Traced compliance flags to one script step and retested it before redeploying.",lesson:"Fix the step behind the flags first. Retraining the whole flow was not needed."},
-{who:"Sample: Solution lead",acct:"Bayuwan Finance",sig:"outcomes",res:"Partly Worked",tried:"Changed the call script to lift promise-to-pay in the whole segment at once.",lesson:"Change one segment against a control group, or you cannot tell what helped."},
-{who:"Sample: Support lead",acct:"Serojana Bank",sig:"friction",res:"Worked",tried:"Sent the client a dated recovery plan for the oldest incident and change request.",lesson:"Clients accept delays better with dates and one named owner."},
-{who:"Sample: Customer success",acct:"Kintara Insurance",sig:"usage",res:"Did Not Work",tried:"Escalated a large volume drop as churn risk.",lesson:"Their overdue base had fallen too. Check the client's own base before escalating."}
+{who:"Aisyah",acct:"Gemilra Takaful",sig:"rel",res:"Did Not Work",tried:"Sent a recap email to the old sponsor's team after the sponsor left.",lesson:"Nobody owned it on their side. Find the new sponsor first, then book the QBR."},
+{who:"Daniel",acct:"Selatel Mobile",sig:"quality",res:"Worked",tried:"Traced compliance flags to one script step and retested it before redeploying.",lesson:"Fix the step behind the flags first. Retraining the whole flow was not needed."},
+{who:"Priya",acct:"Bayuwan Finance",sig:"outcomes",res:"Partly Worked",tried:"Changed the call script to lift promise-to-pay in the whole segment at once.",lesson:"Change one segment against a control group, or you cannot tell what helped."},
+{who:"Marcus",acct:"Serojana Bank",sig:"friction",res:"Worked",tried:"Sent the client a dated recovery plan for the oldest incident and change request.",lesson:"Clients accept delays better with dates and one named owner."},
+{who:"Farah",acct:"Kintara Insurance",sig:"usage",res:"Did Not Work",tried:"Escalated a large volume drop as churn risk.",lesson:"Their overdue base had fallen too. Check the client's own base before escalating."}
 ];
 var mine=[];
 try{mine=JSON.parse(localStorage.getItem(LOGKEY))||[]}catch(err){mine=[]}
