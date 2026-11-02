@@ -48,7 +48,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .detail{padding:4px 14px 14px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
 .sig{display:grid;grid-template-columns:112px 1fr 34px;gap:8px;align-items:center;font-size:13.5px;margin-bottom:6px}
 .meter{height:10px;background:#eef1f4;border-radius:5px;overflow:hidden}.meter i{display:block;height:100%;background:var(--accent)}
-ul{margin:0 0 10px;padding-left:19px}li{margin-bottom:4px}
+ul,ol{margin:0 0 10px;padding-left:19px}li{margin-bottom:4px}
 .callout{background:var(--accent-soft);border-radius:8px;padding:10px 12px;font-size:14.5px;margin-bottom:12px}
 .warn{background:var(--med-soft)}
 .hide{display:none}
@@ -276,11 +276,11 @@ function evidence(c,k){
   return "Last QBR was "+c.qbr+" days ago, training attendance is "+c.tr+"%"+(c.ch?", and the client's main sponsor has left":"");
 }
 var PLAY={
- usage:{owner:"Customer success lead with the client's operations owner",step:"Ask what changed in their campaign plan, then rebuild the volume forecast with them."},
- outcomes:{owner:"Solution lead with conversation design",step:"Review failed calls against the promise, agree one fix, and retest it on a control group."},
- quality:{owner:"Conversation design with the client's compliance team",step:"Trace the flags to the script step behind them, fix it, and retest before redeploying."},
- friction:{owner:"Support lead with engineering",step:"Clear the oldest incident and change request, then send the client a dated recovery plan."},
- rel:{owner:"Account manager with an executive sponsor",step:"Book a QBR within two weeks, find the new sponsor, and rerun product training."}
+ usage:{owner:["Customer Success Lead","Client's Operations Owner"],step:"Ask what changed in their campaign plan, then rebuild the volume forecast with them."},
+ outcomes:{owner:["Solution Lead","Conversation Designer"],step:"Review failed calls against the promise, agree one fix, and retest it on a control group."},
+ quality:{owner:["Conversation Designer","Client's Compliance Team"],step:"Trace the flags to the script step behind them, fix it, and retest before redeploying."},
+ friction:{owner:["Support Lead","Engineer"],step:"Clear the oldest incident and change request, then send the client a dated recovery plan."},
+ rel:{owner:["Account Manager","Executive Sponsor"],step:"Book a QBR within two weeks, find the new sponsor, and rerun product training."}
 };
 function topSignals(c){var R=risks(c);return Object.keys(R).map(function(k){return{k:k,c:R[k]*w[k]}}).sort(function(a,b){return b.c-a.c})}
 function renderKpis(){
@@ -299,7 +299,7 @@ function renderAccts(){
       var R=risks(c),t=topSignals(c),pl=PLAY[t[0].k];
       html+='<div class="detail"><div><h3 style="margin-top:10px">Why This Score</h3>'+Object.keys(SIG).map(function(k){return '<div class="sig"><div>'+SIG[k]+'</div><div class="meter"><i style="width:'+R[k]+'%"></i></div><div style="text-align:right">'+Math.round(R[k])+"</div></div>"}).join("")+
         "<ul style='margin-top:10px'>"+Object.keys(SIG).map(function(k){return "<li class='small'><b>"+SIG[k]+":</b> "+evidence(c,k)+".</li>"}).join("")+"</ul></div>"+
-        '<div><h3 style="margin-top:10px">What Happens Next</h3>'+(isGrow(c)?"<p><b>Expansion:</b> "+c.grow+"</p>":b=="LOW"?"<p>Keep the normal QBR rhythm. No action this month.</p>":"<p><b>Owner:</b> "+pl.owner+".</p><p><b>Next Step:</b> "+pl.step+"</p>")+
+        '<div><h3 style="margin-top:10px">What Happens Next</h3>'+(isGrow(c)?"<p><b>Expansion:</b> "+c.grow+"</p>":b=="LOW"?"<p>Keep the normal QBR rhythm. No action this month.</p>":"<p style='margin-bottom:2px'><b>Owners:</b></p><ol>"+pl.owner.map(function(o){return "<li>"+o+"</li>"}).join("")+"</ol><p><b>Next Step:</b> "+pl.step+"</p>")+
         "<h3>QBR Talking Points</h3><ul class='small'><li>Promise versus actual: "+evidence(c,"outcomes")+".</li>"+(b=="LOW"?"":"<li>Next concern: "+evidence(c,t[0].k=="outcomes"?t[1].k:t[0].k)+".</li>")+"<li>Ask: What does the client's plan look like for next quarter?</li></ul>"+
        '<p class="small muted">A person decides and acts. Nothing is sent automatically.</p><button class="btn ghost" data-r="'+c.n+'">'+(reviewed[c.n]?"Reviewed":"Mark As Reviewed")+'</button> <button class="btn ghost" data-l="'+c.n+'" data-s="'+t[0].k+'">Log Feedback</button></div></div>';
     }
