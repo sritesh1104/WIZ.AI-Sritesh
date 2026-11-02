@@ -160,7 +160,7 @@ textarea{min-height:58px;resize:vertical}
         </div>
         <div><label for="l-tried">What We Tried</label><textarea id="l-tried" required maxlength="400"></textarea></div>
         <div><label for="l-lesson">Lesson for the Team</label><textarea id="l-lesson" required maxlength="400"></textarea></div>
-        <button class="btn" type="submit">Add to the Log</button>
+        <button class="btn" type="submit">Add To The Log</button>
         <p class="small muted" id="logMsg" style="margin:8px 0 0"></p>
       </form>
       <div class="card logcard">
@@ -301,7 +301,7 @@ function renderAccts(){
         "<ul style='margin-top:10px'>"+Object.keys(SIG).map(function(k){return "<li class='small'><b>"+SIG[k]+":</b> "+evidence(c,k)+".</li>"}).join("")+"</ul></div>"+
         '<div><h3 style="margin-top:10px">What Happens Next</h3>'+(isGrow(c)?"<p><b>Expansion:</b> "+c.grow+"</p>":b=="LOW"?"<p>Keep the normal QBR rhythm. No action this month.</p>":"<p><b>Owner:</b> "+pl.owner+".</p><p><b>Next Step:</b> "+pl.step+"</p>")+
         "<h3>QBR Talking Points</h3><ul class='small'><li>Promise versus actual: "+evidence(c,"outcomes")+".</li>"+(b=="LOW"?"":"<li>Next concern: "+evidence(c,t[0].k=="outcomes"?t[1].k:t[0].k)+".</li>")+"<li>Ask: What does the client's plan look like for next quarter?</li></ul>"+
-       '<p class="small muted">A person decides and acts. Nothing is sent automatically.</p><button class="btn ghost" data-r="'+c.n+'">'+(reviewed[c.n]?"Reviewed":"Mark as Reviewed")+'</button> <button class="btn ghost" data-l="'+c.n+'" data-s="'+t[0].k+'">Log Feedback</button></div></div>';
+       '<p class="small muted">A person decides and acts. Nothing is sent automatically.</p><button class="btn ghost" data-r="'+c.n+'">'+(reviewed[c.n]?"Reviewed":"Mark As Reviewed")+'</button> <button class="btn ghost" data-l="'+c.n+'" data-s="'+t[0].k+'">Log Feedback</button></div></div>';
     }
     return html+"</div>"}).join(""):'<p class="muted">No accounts in this group.</p>';
 }
