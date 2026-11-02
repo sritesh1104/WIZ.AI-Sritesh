@@ -276,11 +276,11 @@ function evidence(c,k){
   return "Last QBR was "+c.qbr+" days ago, training attendance is "+c.tr+"%"+(c.ch?", and the client's main sponsor has left":"");
 }
 var PLAY={
- usage:{owner:["Customer Success Lead","Client's Operations Owner"],step:"Ask what changed in their campaign plan, then rebuild the volume forecast with them."},
- outcomes:{owner:["Solution Lead","Conversation Designer"],step:"Review failed calls against the promise, agree one fix, and retest it on a control group."},
- quality:{owner:["Conversation Designer","Client's Compliance Team"],step:"Trace the flags to the script step behind them, fix it, and retest before redeploying."},
- friction:{owner:["Support Lead","Engineer"],step:"Clear the oldest incident and change request, then send the client a dated recovery plan."},
- rel:{owner:["Account Manager","Executive Sponsor"],step:"Book a QBR within two weeks, find the new sponsor, and rerun product training."}
+ usage:{ask:"What changed in your campaign plans that explains the lower call volume?",owner:["Customer Success Lead","Client's Operations Owner"],step:"Ask what changed in their campaign plan, then rebuild the volume forecast with them."},
+ outcomes:{ask:"Which missed results hurt you most, so we can fix those calls first?",owner:["Solution Lead","Conversation Designer"],step:"Review failed calls against the promise, agree one fix, and retest it on a control group."},
+ quality:{ask:"Can your compliance team review the flagged script step with us this week?",owner:["Conversation Designer","Client's Compliance Team"],step:"Trace the flags to the script step behind them, fix it, and retest before redeploying."},
+ friction:{ask:"Which open issue is hurting your team the most right now?",owner:["Support Lead","Engineer"],step:"Clear the oldest incident and change request, then send the client a dated recovery plan."},
+ rel:{ask:"Who should we work with as sponsor, and can we book a QBR within two weeks?",owner:["Account Manager","Executive Sponsor"],step:"Book a QBR within two weeks, find the new sponsor, and rerun product training."}
 };
 function topSignals(c){var R=risks(c);return Object.keys(R).map(function(k){return{k:k,c:R[k]*w[k]}}).sort(function(a,b){return b.c-a.c})}
 function renderKpis(){
@@ -300,7 +300,7 @@ function renderAccts(){
       html+='<div class="detail"><div><h3 style="margin-top:10px">Why This Score</h3>'+Object.keys(SIG).map(function(k){return '<div class="sig"><div>'+SIG[k]+'</div><div class="meter"><i style="width:'+R[k]+'%"></i></div><div style="text-align:right">'+Math.round(R[k])+"</div></div>"}).join("")+
         "<ul style='margin-top:10px'>"+Object.keys(SIG).map(function(k){return "<li class='small'><b>"+SIG[k]+":</b> "+evidence(c,k)+".</li>"}).join("")+"</ul></div>"+
         '<div><h3 style="margin-top:10px">What Happens Next</h3>'+(isGrow(c)?"<p><b>Expansion:</b> "+c.grow+"</p>":b=="LOW"?"<p>Keep the normal QBR rhythm. No action this month.</p>":"<p style='margin-bottom:2px'><b>Owners:</b></p><ol>"+pl.owner.map(function(o){return "<li>"+o+"</li>"}).join("")+"</ol><p><b>Next Step:</b> "+pl.step+"</p>")+
-        "<h3>QBR Talking Points</h3><ul class='small'><li>Promise versus actual: "+evidence(c,"outcomes")+".</li>"+(b=="LOW"?"":"<li>Next concern: "+evidence(c,t[0].k=="outcomes"?t[1].k:t[0].k)+".</li>")+"<li>Ask: What does the client's plan look like for next quarter?</li></ul>"+
+        "<h3>QBR Talking Points</h3><ul class='small'><li>Promise versus actual: "+evidence(c,"outcomes")+".</li>"+(b=="LOW"?"":"<li>Next concern: "+evidence(c,t[0].k=="outcomes"?t[1].k:t[0].k)+".</li>")+"<li>Ask: "+(isGrow(c)?"Where do you want to grow next quarter?":b=="LOW"?"What does your plan look like for next quarter?":pl.ask)+"</li></ul>"+
        '<p class="small muted">A person decides and acts. Nothing is sent automatically.</p><button class="btn ghost" data-r="'+c.n+'">'+(reviewed[c.n]?"Reviewed":"Mark As Reviewed")+'</button> <button class="btn ghost" data-l="'+c.n+'" data-s="'+t[0].k+'">Log Feedback</button></div></div>';
     }
     return html+"</div>"}).join(""):'<p class="muted">No accounts in this group.</p>';
