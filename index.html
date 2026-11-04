@@ -87,7 +87,7 @@ textarea{min-height:58px;resize:vertical}
       <div>
         <h2>Scenario: Should Telkara Broadband Partner With WIZ.AI?</h2>
         <p class="small muted">Telkara Broadband is an example client, with illustrative figures.</p>
-        <p><b>The Client:</b> A home broadband provider where about 20,000 customer contracts end each month, and each customer who renews is worth about RM 750.</p>
+        <p><b>The Client:</b> A home broadband provider where about 20,000 customer contracts end each month. Agents reach about half of those customers, 40% of the customers they reach renew, and each renewal is worth about RM 120 in profit.</p>
         <p><b>The Problem:</b> 60 human agents, costing RM 4,500 a month each, spend their days on routine renewal calls, and many customers are not reached before their contract ends.</p>
         <p><b>The Decision:</b> Is voice AI worth RM 60,000 a month plus RM 150,000 to set up? AI would take the routine renewal calls, while complaints and cancellations stay with human agents.</p>
         <p class="small muted" style="margin:0"><b>A Real Reference:</b> A published case study reports that PLDT, a telecom company, gained 33% productivity and halved call handling time with Talkbot Pro, in collections support (<a href="https://www.casestudies.com/company/wizai/case-study/pldt-witnesses-increased-productivity-by-33-and-reduced-callouts-by-15" target="_blank" rel="noopener">case study</a>). None of the figures below are PLDT's.</p>
@@ -100,30 +100,37 @@ textarea{min-height:58px;resize:vertical}
         <p class="muted small">Works for any client. Every input can be changed live.</p>
         <div class="field"><label for="A">Human Agents</label><input type="text" inputmode="numeric" class="num" id="A"></div>
         <div class="field"><label for="C">Cost per Human Agent, RM a Month</label><input type="text" inputmode="numeric" class="num" id="C"></div>
-        <div class="field"><label for="N">Customers to Reach a Month</label><input type="text" inputmode="numeric" class="num" id="N"></div>
-        <div class="field"><label for="V">Value per Successful Outcome, RM</label><input type="text" inputmode="numeric" class="num" id="V"></div>
+        <div class="field"><label for="N">Customers Due a Month</label><input type="text" inputmode="numeric" class="num" id="N"></div>
+        <div class="field"><label for="CT">Connection Rate Today, %</label><input type="text" inputmode="numeric" class="num" id="CT"></div>
+        <div class="field"><label for="VT">Conversion Rate Today, %</label><input type="text" inputmode="numeric" class="num" id="VT"></div>
+        <div class="field"><label for="V">Value per Conversion, RM</label><input type="text" inputmode="numeric" class="num" id="V"></div>
         <div class="field"><label for="F">Vendor Fee, RM a Month</label><input type="text" inputmode="numeric" class="num" id="F"></div>
         <div class="field"><label for="I">One-Off Implementation, RM</label><input type="text" inputmode="numeric" class="num" id="I"></div>
         <p class="muted small">Vendor pricing is a placeholder, because no pricing is public.</p>
+      </div>
+      <div class="card">
+        <h2>Assumptions With AI</h2>
+        <table>
+          <thead><tr><th>Assumption</th><th>Low</th><th>Expected</th><th>High</th></tr></thead>
+          <tbody id="assump"></tbody>
+        </table>
+        <p class="muted small" style="margin-top:8px">Rates with AI are measured against a control group: similar customers called the usual way.</p>
+      </div>
+      <div class="card">
+        <h2>Funnel, Per Month</h2>
+        <table id="funnel"></table>
+        <p class="muted small" style="margin-top:8px">Connected customers are those who pick up. Conversions are those who renew.</p>
       </div>
       <div class="card">
         <h2>Result, Per Month</h2>
         <table id="results"></table>
         <p class="muted small" style="margin-top:8px">Multiple means monthly benefit divided by the vendor fee. This is my own definition.</p>
       </div>
-      <div class="card">
-        <h2>Assumptions</h2>
-        <table>
-          <thead><tr><th>Assumption</th><th>Low</th><th>Expected</th><th>High</th></tr></thead>
-          <tbody id="assump"></tbody>
-        </table>
-        <p class="muted small" style="margin-top:8px">Outcome uplift is measured against a control group: similar customers who get no AI calls.</p>
-      </div>
-      <div class="card">
-        <h2>What Moves the Answer Most</h2>
-        <p class="muted small">Change one assumption at a time and keep the others at expected. The figures are net of vendor fee, per month.</p>
-        <div id="tornado"></div>
-      </div>
+    </div>
+    <div class="card">
+      <h2>What Moves the Answer Most</h2>
+      <p class="muted small">Change one assumption at a time and keep the others at expected. The figures are net of vendor fee, per month.</p>
+      <div id="tornado"></div>
     </div>
   </section>
 
@@ -183,48 +190,64 @@ var rm=function(n){var a=Math.abs(n);var s=a>=1e6?(a/1e6).toFixed(2)+"m":Math.ro
 var clamp=function(x){return Math.max(0,Math.min(100,x))};
 
 /* Business case */
-var A={s:{label:"Calls AI Takes Over, %",v:[0,0,0],step:5},r:{label:"Saving Actually Realised, %",v:[0,0,0],step:5},u:{label:"Outcome Uplift, Points",v:[0,0,0],step:0.1}};
-var SCENARIO={A:60,C:4500,N:20000,V:750,F:60000,I:150000,s:[30,35,50],r:[45,60,80],u:[0.4,0.5,1]};
+var A={c:{label:"Connection Rate With AI, %",v:[0,0,0],step:1},v:{label:"Conversion Rate With AI, %",v:[0,0,0],step:1},s:{label:"Calls AI Completes Without a Human, %",v:[0,0,0],step:5},r:{label:"Saving Actually Realised, %",v:[0,0,0],step:5}};
+var FIELDS=["A","C","N","CT","VT","V","F","I"];
+var SCENARIO={A:60,C:4500,N:20000,CT:50,VT:40,V:120,F:60000,I:150000,c:[57,60,70],v:[39,40,42],s:[40,60,80],r:[45,60,80]};
 var loaded=false;
 function setScenario(on){
   loaded=on;
-  ["A","C","N","V","F","I"].forEach(function(f){$(f).value=on?SCENARIO[f].toLocaleString("en-US"):""});
+  FIELDS.forEach(function(f){$(f).value=on?SCENARIO[f].toLocaleString("en-US"):""});
   Object.keys(A).forEach(function(k){A[k].v=on?SCENARIO[k].slice():[0,0,0]});
   $("loadBtn").textContent=on?"Clear Figures":"Load Scenario";
   buildAssump();renderCase();
 }
 function num(id){return +$(id).value.replace(/,/g,"")||0}
-function inputs(){return{A:num("A"),C:num("C"),B:num("N")*num("V"),F:num("F")||1,I:num("I")}}
+function inputs(){return{A:num("A"),C:num("C"),N:num("N"),CT:num("CT"),VT:num("VT"),V:num("V"),F:num("F")||1,I:num("I")}}
 function tip(text){return '<span class="tip" tabindex="0" aria-label="'+text+'">i<span role="tooltip">'+text+"</span></span>"}
-function benefit(p,s,r,u){return p.A*p.C*(s/100)*(r/100)+p.B*(u/100)}
+function conversions(p,c,v){return p.N*(c/100)*(v/100)}
+function saving(p,o){return p.A*p.C*(o.s/100)*(o.r/100)}
+function extra(p,o){return (conversions(p,o.c,o.v)-conversions(p,p.CT,p.VT))*p.V}
+function benefit(p,o){return saving(p,o)+extra(p,o)}
+function at(j){var o={};Object.keys(A).forEach(function(k){o[k]=A[k].v[j]});return o}
+var cnt=function(n){return Math.round(n).toLocaleString("en-US")};
 function buildAssump(){
   $("assump").innerHTML=Object.keys(A).map(function(k){return "<tr><td>"+A[k].label+"</td>"+[0,1,2].map(function(j){
     return '<td><input type="number" aria-label="'+A[k].label+" "+["low","expected","high"][j]+'" data-k="'+k+'" data-j="'+j+'" value="'+(A[k].v[j]||"")+'" step="'+A[k].step+'" min="0" style="width:68px"></td>'}).join("")+"</tr>"}).join("");
 }
 function renderCase(){
   var p=inputs();
-  if(!p.A&&!p.C&&!p.B){
-    $("results").innerHTML='<tbody><tr><td class="muted">Load the scenario above, or type your own figures.</td></tr></tbody>';
+  if(!p.A&&!p.C&&!p.N){
+    var empty='<tbody><tr><td class="muted">Load the scenario above, or type your own figures.</td></tr></tbody>';
+    $("results").innerHTML=empty;$("funnel").innerHTML=empty;
     $("tornado").innerHTML='<p class="muted">Load the scenario above, or type your own figures.</p>';
     return;
   }
   var cases=[0,1,2].map(function(j){
-    var save=p.A*p.C*(A.s.v[j]/100)*(A.r.v[j]/100),rec=p.B*(A.u.v[j]/100),b=save+rec,net=b-p.F;
-    return{save:save,rec:rec,b:b,net:net,mult:b/p.F,pay:net>0?p.I/net:null}});
+    var o=at(j),save=saving(p,o),rec=extra(p,o),b=save+rec,net=b-p.F;
+    return{o:o,save:save,rec:rec,b:b,net:net,mult:b/p.F,pay:net>0?p.I/net:null}});
+  var today=conversions(p,p.CT,p.VT);
+  var frow=function(l,t,f0,f){return "<tr><td>"+l+" "+tip(t)+"</td><td>"+f0+"</td>"+cases.map(function(c,j){return '<td class="'+(j==1?"exp":"")+'">'+f(c)+"</td>"}).join("")+"</tr>"};
+  $("funnel").innerHTML="<thead><tr><th></th><th>Today</th><th>Low</th><th>Expected</th><th>High</th></tr></thead><tbody>"+
+    frow("Customers Due","Customers due a month",cnt(p.N),function(){return cnt(p.N)})+
+    frow("Connection Rate","Share of customers who pick up",p.CT+"%",function(c){return c.o.c+"%"})+
+    frow("Customers Connected","Customers due × connection rate",cnt(p.N*p.CT/100),function(c){return cnt(p.N*c.o.c/100)})+
+    frow("Conversion Rate","Share of connected customers who renew",p.VT+"%",function(c){return c.o.v+"%"})+
+    frow("Conversions","Customers connected × conversion rate",cnt(today),function(c){return cnt(conversions(p,c.o.c,c.o.v))})+
+    frow("Extra Conversions","Conversions with AI − conversions today","",function(c){var d=conversions(p,c.o.c,c.o.v)-today;return (d>0?"+":"")+cnt(d)})+"</tbody>";
   var row=function(l,t,f){return "<tr><td>"+l+" "+tip(t)+"</td>"+cases.map(function(c,j){return '<td class="'+(j==1?"exp":"")+'">'+f(c)+"</td>"}).join("")+"</tr>"};
   $("results").innerHTML="<thead><tr><th></th><th>Low</th><th>Expected</th><th>High</th></tr></thead><tbody>"+
-    row("Human Agent Cost Saved","Human agents × cost per human agent × calls AI takes over × saving actually realised",function(c){return rm(c.save)})+
-    row("Extra Value","Customers to reach × value per successful outcome × outcome uplift",function(c){return rm(c.rec)})+
+    row("Human Agent Cost Saved","Human agents × cost per human agent × calls AI completes without a human × saving actually realised",function(c){return rm(c.save)})+
+    row("Extra Value","Extra conversions × value per conversion",function(c){return rm(c.rec)})+
     row("Total Benefit","Human agent cost saved + extra value",function(c){return rm(c.b)})+
     row("Net of Vendor Fee","Total benefit − vendor fee",function(c){return rm(c.net)})+
     row("Benefit Multiple","Total benefit ÷ vendor fee",function(c){return c.mult.toFixed(1)+"x"})+
     row("Payback","One-off implementation ÷ net of vendor fee",function(c){return c.pay===null?"Does not pay back":c.pay.toFixed(1)+" months"})+"</tbody>";
-  var e={s:A.s.v[1],r:A.r.v[1],u:A.u.v[1]};
+  var e=at(1);
   var rows=Object.keys(A).map(function(k){
     var lo=Object.assign({},e),hi=Object.assign({},e);lo[k]=A[k].v[0];hi[k]=A[k].v[2];
-    var n=function(o){return benefit(p,o.s,o.r,o.u)-p.F};
+    var n=function(o){return benefit(p,o)-p.F};
     return{k:k,lo:n(lo),hi:n(hi)}});
-  var net=benefit(p,e.s,e.r,e.u)-p.F;
+  var net=benefit(p,e)-p.F;
   var biggest=Math.max.apply(null,rows.map(function(r){return Math.abs(r.hi-r.lo)}));
   var top=rows.filter(function(r){return Math.abs(r.hi-r.lo)==biggest})[0];
   $("tornado").innerHTML="<table><thead><tr><th>Assumption</th><th>When Low</th><th>When High</th><th>Gap</th></tr></thead><tbody>"+rows.map(function(r){
