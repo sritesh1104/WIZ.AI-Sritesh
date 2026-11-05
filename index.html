@@ -69,6 +69,7 @@ textarea{min-height:58px;resize:vertical}
 .log p{margin:0 0 4px}.log .meta{font-size:13px;color:var(--muted)}
 .linkbtn{background:none;border:0;color:var(--high);font:inherit;font-size:13px;cursor:pointer;padding:0;text-decoration:underline}
 @media (max-width:860px){.grid2,.detail{grid-template-columns:1fr}.logscroll{height:auto;flex:none;overflow:visible}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.weights{grid-template-columns:repeat(2,minmax(0,1fr))}.acct>button{grid-template-columns:minmax(0,1fr) auto 40px}}
+@media (min-width:1100px){#funnel th{white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -227,13 +228,13 @@ function renderCase(){
     return{o:o,save:save,rec:rec,b:b,net:net,mult:b/p.F,pay:net>0?p.I/net:null}});
   var today=conversions(p,p.CT,p.VT);
   var frow=function(l,t,f0,f){return "<tr><td>"+l+" "+tip(t)+"</td><td>"+f0+"</td>"+cases.map(function(c,j){return '<td class="'+(j==1?"exp":"")+'">'+f(c)+"</td>"}).join("")+"</tr>"};
-  $("funnel").innerHTML="<thead><tr><th></th><th>Today</th><th>Low</th><th>Expected</th><th>High</th></tr></thead><tbody>"+
+  $("funnel").innerHTML="<thead><tr><th></th><th>Without WIZ.AI</th><th>Low</th><th>Expected</th><th>High</th></tr></thead><tbody>"+
     frow("Customers Due","Customers due a month",cnt(p.N),function(){return cnt(p.N)})+
     frow("Connection Rate","Share of customers who pick up",p.CT+"%",function(c){return c.o.c+"%"})+
     frow("Customers Connected","Customers due × connection rate",cnt(p.N*p.CT/100),function(c){return cnt(p.N*c.o.c/100)})+
     frow("Conversion Rate","Share of connected customers who renew",p.VT+"%",function(c){return c.o.v+"%"})+
     frow("Conversions","Customers connected × conversion rate",cnt(today),function(c){return cnt(conversions(p,c.o.c,c.o.v))})+
-    frow("Extra Conversions","Conversions with AI − conversions today","",function(c){var d=conversions(p,c.o.c,c.o.v)-today;return (d>0?"+":"")+cnt(d)})+"</tbody>";
+    frow("Extra Conversions","Conversions with WIZ.AI − conversions without WIZ.AI","",function(c){var d=conversions(p,c.o.c,c.o.v)-today;return (d>0?"+":"")+cnt(d)})+"</tbody>";
   var row=function(l,t,f){return "<tr><td>"+l+" "+tip(t)+"</td>"+cases.map(function(c,j){return '<td class="'+(j==1?"exp":"")+'">'+f(c)+"</td>"}).join("")+"</tr>"};
   $("results").innerHTML="<thead><tr><th></th><th>Low</th><th>Expected</th><th>High</th></tr></thead><tbody>"+
     row("Human Agent Cost Saved","Human agents × cost per human agent × calls AI completes without a human × saving actually realised",function(c){return rm(c.save)})+
