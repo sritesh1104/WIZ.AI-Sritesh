@@ -110,12 +110,12 @@ textarea{min-height:58px;resize:vertical}
         <p class="muted small">Vendor pricing is a placeholder, because no pricing is public.</p>
       </div>
       <div class="card">
-        <h2>Assumptions With AI</h2>
+        <h2>Assumptions With WIZ.AI</h2>
         <table>
           <thead><tr><th>Assumption</th><th>Low</th><th>Expected</th><th>High</th></tr></thead>
           <tbody id="assump"></tbody>
         </table>
-        <p class="muted small" style="margin-top:8px">Rates with AI are measured against a control group: similar customers called the usual way.</p>
+        <p class="muted small" style="margin-top:8px">Rates with WIZ.AI are measured against a control group: similar customers called the usual way.</p>
       </div>
       <div class="card">
         <h2>Funnel, Per Month</h2>
@@ -191,7 +191,7 @@ var rm=function(n){var a=Math.abs(n);var s=a>=1e6?(a/1e6).toFixed(2)+"m":Math.ro
 var clamp=function(x){return Math.max(0,Math.min(100,x))};
 
 /* Business case */
-var A={c:{label:"Connection Rate With AI, %",v:[0,0,0],step:1},v:{label:"Conversion Rate With AI, %",v:[0,0,0],step:1},s:{label:"Calls AI Completes Without a Human, %",v:[0,0,0],step:5},r:{label:"Saving Actually Realised, %",v:[0,0,0],step:5}};
+var A={c:{label:"Connection Rate With WIZ.AI, %",v:[0,0,0],step:1},v:{label:"Conversion Rate With WIZ.AI, %",v:[0,0,0],step:1},s:{label:"Calls AI Completes Without a Human, %",v:[0,0,0],step:5},r:{label:"Saving Actually Realised, %",v:[0,0,0],step:5}};
 var FIELDS=["A","C","N","CT","VT","V","F","I"];
 var SCENARIO={A:60,C:4500,N:20000,CT:50,VT:40,V:120,F:60000,I:150000,c:[57,60,70],v:[39,40,42],s:[40,60,80],r:[45,60,80]};
 var loaded=false;
@@ -254,7 +254,7 @@ function renderCase(){
   $("tornado").innerHTML="<table><thead><tr><th>Assumption</th><th>When Low</th><th>When High</th><th>Gap</th></tr></thead><tbody>"+rows.map(function(r){
     var c=r==top?' class="exp"':"";
     return "<tr><td"+c+">"+A[r.k].label.split(",")[0]+"</td><td"+c+">"+rm(r.lo)+"</td><td"+c+">"+rm(r.hi)+"</td><td"+c+">"+rm(Math.abs(r.hi-r.lo))+"</td></tr>"}).join("")+
-    '</tbody></table><p style="margin:12px 0 0">Expected case: <b>'+rm(net)+" a month</b>. The biggest gap is <b>"+A[top.k].label.split(",")[0].toLowerCase().replace(/\bai\b/,"AI")+"</b>, so test that first in the pilot.</p>";
+    '</tbody></table><p style="margin:12px 0 0">Expected case: <b>'+rm(net)+" a month</b>. The biggest gap is <b>"+A[top.k].label.split(",")[0].toLowerCase().replace(/wiz\.ai/g,"WIZ.AI").replace(/\bai\b/g,"AI")+"</b>, so test that first in the pilot.</p>";
 }
 
 /* Account health */
