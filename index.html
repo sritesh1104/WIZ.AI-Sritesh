@@ -30,7 +30,7 @@ input[type=number]{width:100%;padding:6px 8px;border:1px solid #b9c3cd;border-ra
 table{border-collapse:collapse;width:100%}th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);font-size:14.5px}
 th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:600}
 .exp{background:var(--accent-soft);font-weight:600}
-.grp th{border-bottom:none;padding-bottom:0}.grp th[colspan]{text-align:center;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:4px}
+.grp th{border-bottom:none;padding-bottom:0}.grp th[colspan]{text-align:center;color:var(--accent);padding-bottom:6px;position:relative}.grp th[colspan]::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:2px;background:var(--accent)}
 .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:7px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
 .btn.ghost{background:#fff;color:var(--accent)}
 .weights{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
@@ -229,7 +229,7 @@ function renderCase(){
     return{o:o,save:save,rec:rec,b:b,net:net,mult:b/p.F,pay:net>0?p.I/net:null}});
   var today=conversions(p,p.CT,p.VT);
   var frow=function(l,t,f0,f){return "<tr><td>"+l+" "+tip(t)+"</td><td>"+f0+"</td>"+cases.map(function(c,j){return '<td class="'+(j==1?"exp":"")+'">'+f(c)+"</td>"}).join("")+"</tr>"};
-  $("funnel").innerHTML="<thead><tr class=\"grp\"><th></th><th></th><th colspan=\"3\">With WIZ.AI</th></tr><tr><th></th><th>Without WIZ.AI</th><th>Low</th><th>Expected</th><th>High</th></tr></thead><tbody>"+
+  $("funnel").innerHTML="<thead><tr class=\"grp\"><th></th><th colspan=\"1\">Without WIZ.AI</th><th colspan=\"3\">With WIZ.AI</th></tr><tr><th></th><th></th><th>Low</th><th>Expected</th><th>High</th></tr></thead><tbody>"+
     frow("Customers Due","Customers due a month",cnt(p.N),function(){return cnt(p.N)})+
     frow("Connection Rate","Share of customers who pick up",p.CT+"%",function(c){return c.o.c+"%"})+
     frow("Customers Connected","Customers due × connection rate",cnt(p.N*p.CT/100),function(c){return cnt(p.N*c.o.c/100)})+
